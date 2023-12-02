@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+application {
+    mainClassName = 'main.java.org.Main'
+}
+
+group = 'org'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+run {
+    mainClass = 'main.java.org.Main'
+    standardInput = System.in
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+    test{
+        java{
+            srcDirs=['src']
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "main.java.org.Main"
+    }
+}
