@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Rendering.Camera.Camera;
+import main.java.org.Rendering.Drawables.Chunk;
 import main.java.org.Rendering.Drawables.Cube;
 
 public class GameScreen extends JPanel {
@@ -40,16 +41,31 @@ public class GameScreen extends JPanel {
         Cube kuba=new Cube(Color.yellow);
         kuba.setPosition(new Vector3(3,-2,3));
 
+        Chunk chomk=new Chunk(1,1);
+
         cum.addDrawable(kuba);
+        cum.addDrawable(chomk);
         cum.setYaw(0);
         cum.setFOV(50);
+        cum.setPosition(new Vector3(0,20,0));
 
         Camera.main=cum;
     }
 
+    private int frameCount=0;
+    private long lastFrame=0;
+
     public void frame(){
         bg.repaint();
         fg.repaint();
+
+        if((System.nanoTime()-lastFrame)*0.000000001>1){
+            System.out.println(frameCount);
+
+            lastFrame=System.nanoTime();
+            frameCount=0;
+        }
+        frameCount++;
     }
 
     private static class Foreground extends JPanel{
@@ -65,7 +81,7 @@ public class GameScreen extends JPanel {
 
     private static class Background extends JPanel{
 
-        private static Color CLEAR_COLOR=new Color(255,0,0);
+        private static final Color CLEAR_COLOR=new Color(255,0,0);
 
         private int width;
         private int height;
@@ -98,7 +114,7 @@ public class GameScreen extends JPanel {
 
             clearBuffers();
 
-            Camera.main.render(imageGraphics,depthBuffer);
+            Camera.main.render(image,depthBuffer);
 
             g.drawImage(image,0,0,this);
         }

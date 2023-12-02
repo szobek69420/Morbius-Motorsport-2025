@@ -1,6 +1,7 @@
 package main.java.org.Rendering.Drawables;
 
 import main.java.org.LinearAlgebruh.*;
+import main.java.org.MainFrame.MainFrame;
 import main.java.org.Rendering.Camera.Camera;
 
 import java.awt.*;
@@ -56,12 +57,11 @@ public abstract class Drawable {
 
     /**
      * Eine abstrakte Funktion, die dann wird aufgerufen, falls das Objekt gezeichnet werden soll.
-     * @param g Die Graphics-Kontext, in der das Objekt gezeichnet werden soll.
+     * @param image Die Graphics-Kontext, in der das Objekt gezeichnet werden soll.
      * @param depthBuffer Der Tiefenpuffer
      * @param cam Die Kamera, nach deren Orientation die Bildschirmpositionen berechnet werden sollen.
      */
-    public void render(Graphics g, float[][] depthBuffer, Camera cam){
-        g.setColor(Color.red);
+    public void render(BufferedImage image, float[][] depthBuffer, Camera cam){
 
         Vector3 cameraPos=cam.getPosition();
         Vector3 forward=cam.getForward();
@@ -146,23 +146,29 @@ public abstract class Drawable {
         //screen positions
         int[] x=new int[vertexCount];
         int[] y=new int[vertexCount];
+        float[] z=new float[vertexCount];
 
         for(int i=0;i< vertexCount;i++){
             float distanceRatio=(float)(nearPlane/Math.abs(transformedVertices[i].get(2)));
 
             x[i]=(int)((0.5f*GAME_WIDTH-(transformedVertices[i].get(0)*distanceRatio*onePerNearPlaneWidth)*0.5f*GAME_WIDTH));
             y[i]=(int)(0.5f*GAME_HEIGHT-(transformedVertices[i].get(1)*distanceRatio*onePerNearPlaneHeight)*0.5f*GAME_HEIGHT);
+            z[i]=transformedVertices[i].get(2);
         }
 
         //draw
-        Color orgColor=g.getColor();
         for(int i=0;i<faceCount;i++){
 
             switch (clipCount[i]){
                 case 0:
-                    g.setColor(faceColors[i]);
-                    //System.out.println("guter: "+x[indices[3*i]]+" "+y[indices[3*i]]+" "+x[indices[3*i+1]]+" "+y[indices[3*i+1]]+" "+x[indices[3*i+2]]+" "+y[indices[3*i+2]]);
-                    g.fillPolygon(new int[]{x[indices[3*i]],x[indices[3*i+1]],x[indices[3*i+2]]},new int[]{y[indices[3*i]],y[indices[3*i+1]],y[indices[3*i+2]]},3);
+                    drawTriangle(
+                            new int[]{x[indices[3*i]],x[indices[3*i+1]],x[indices[3*i+2]]},
+                            new int[]{y[indices[3*i]],y[indices[3*i+1]],y[indices[3*i+2]]},
+                            new float[]{z[indices[3*i]],z[indices[3*i+1]],z[indices[3*i+2]]},
+                            image,
+                            depthBuffer,
+                            faceColors[i].getRGB()
+                    );
                     break;
 
                 case 1:
@@ -202,10 +208,10 @@ public abstract class Drawable {
                         modY2[2+j]=(int)(0.5f*GAME_HEIGHT-(temp.get(1)*onePerNearPlaneHeight)*0.5f*GAME_HEIGHT);
                     }
 
-                    g.setColor(faceColors[i]);
+                    /*g.setColor(faceColors[i]);
                     //g.fillPolygon(modX2,modY2,4);
                     g.fillPolygon(new int[]{modX2[0],modX2[1],modX2[2]},new int[]{modY2[0],modY2[1],modY2[2]},3);
-                    g.fillPolygon(new int[]{modX2[1],modX2[2],modX2[3]},new int[]{modY2[1],modY2[2],modY2[3]},3);
+                    g.fillPolygon(new int[]{modX2[1],modX2[2],modX2[3]},new int[]{modY2[1],modY2[2],modY2[3]},3);*/
                     break;
 
                 case 2:
@@ -250,12 +256,218 @@ public abstract class Drawable {
                     }
 
                     //System.out.println("skipped: "+x[indices[3*i]]+" "+y[indices[3*i]]+" "+x[indices[3*i+1]]+" "+y[indices[3*i+1]]+" "+x[indices[3*i+2]]+" "+y[indices[3*i+2]]);
-                    g.setColor(faceColors[i]);
-                    g.fillPolygon(modX,modY,3);
+                    /*g.setColor(faceColors[i]);
+                    g.fillPolygon(modX,modY,3);*/
                     break;
             }
         }
-        g.setColor(orgColor);
+    }
+
+    private void drawTriangle(int[] x,int[] y, float[] z,BufferedImage image, float[][] depthBuffer,int colorARGB){
+        int temp;
+        float tempf;
+
+        //sort
+        {
+            if (x[0] > x[2]) {
+                temp = x[0];
+                x[0] = x[2];
+                x[2] = temp;
+
+                temp = y[0];
+                y[0] = y[2];
+                y[2] = temp;
+
+                tempf = z[0];
+                z[0] = z[2];
+                z[2] = tempf;
+            }
+            if (x[1] > x[2]) {
+                temp = x[1];
+                x[1] = x[2];
+                x[2] = temp;
+
+                temp = y[1];
+                y[1] = y[2];
+                y[2] = temp;
+
+                tempf = z[1];
+                z[1] = z[2];
+                z[2] = tempf;
+            }
+            if (x[0] > x[1]) {
+                temp = x[0];
+                x[0] = x[1];
+                x[1] = temp;
+
+                temp = y[0];
+                y[0] = y[1];
+                y[1] = temp;
+
+                tempf = z[0];
+                z[0] = z[1];
+                z[1] = tempf;
+            }
+        }
+
+        /*for(int i=0;i<3;i++)
+        {
+            for(int j=0;j<3-i-1;j++){
+                if(x[j]>x[j+1]){
+                    temp = x[j];
+                    x[j] = x[j+1];
+                    x[j+1] = temp;
+
+                    temp = y[j];
+                    y[j] = y[j+1];
+                    y[j+1] = temp;
+
+                    tempf = z[j];
+                    z[j] = z[j+1];
+                    z[j+1] = tempf;
+                }
+            }
+        }*/
+
+        boolean baseIsBased=false;//ha a kozepso csucs a ket szelso csucs kozotti oldal felett van, akkor true
+
+        float middleY=1;
+        float middleZ=Camera.RENDER_DISTANCE;
+        if(x[0]==x[1]){
+            middleY=y[0];
+            middleZ=z[0];
+        }
+        else if(x[1]==x[2]){
+            middleY=y[2];
+            middleZ=z[2];
+        }
+        else{
+            middleY=y[0]+(y[2]-y[0])*(x[1]-x[0])/(float)(x[2]-x[0]);
+            middleZ=z[0]+(z[2]-z[0])*(x[1]-x[0])/(float)(x[2]-x[0]);
+        }
+
+        if(y[1]<middleY)
+            baseIsBased=true;
+
+
+        int minY;
+        int maxY;
+        float currentY1;
+        float currentY2;
+        float deltaY1;
+        float deltaY2;
+        float currentZ1;
+        float currentZ2;
+        float deltaZ1;
+        float deltaZ2;
+        float ziterator;
+        float deltaZiterator;
+
+        //elso egyenes
+        if(x[0]!=x[1]){
+            currentY1=y[0]+0.51f;
+            currentY2=y[0]+0.51f;
+            currentZ1=z[0];
+            currentZ2=z[0];
+
+            if(baseIsBased){
+                deltaY1=(y[1]-y[0])/(float)(x[1]-x[0]);
+                deltaY2=(y[2]-y[0])/(float)(x[2]-x[0]);
+                deltaZ1=(z[1]-z[0])/(float)(x[1]-x[0]);
+                deltaZ2=(z[2]-z[0])/(float)(x[2]-x[0]);
+            }
+            else{
+                deltaY2=(y[1]-y[0])/(float)(x[1]-x[0]);
+                deltaY1=(y[2]-y[0])/(float)(x[2]-x[0]);
+                deltaZ2=(z[1]-z[0])/(float)(x[1]-x[0]);
+                deltaZ1=(z[2]-z[0])/(float)(x[2]-x[0]);
+            }
+
+            for(int i=x[0]<0?0:x[0];i<=x[1]&&i<MainFrame.SCREEN_WIDTH;i++){
+                minY=(int)currentY1;
+                if(minY> MainFrame.SCREEN_HEIGHT)
+                    minY=MainFrame.SCREEN_HEIGHT-1;
+                else if(minY<0)
+                    minY=0;
+
+                maxY=(int)currentY2;
+                if(maxY> MainFrame.SCREEN_HEIGHT)
+                    maxY=MainFrame.SCREEN_HEIGHT-1;
+                else if(maxY<0)
+                    maxY=0;
+
+                ziterator=currentZ1;
+                deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
+                for(;minY<=maxY;minY++){
+                    if(ziterator<depthBuffer[i][minY]){
+                        depthBuffer[i][minY]=ziterator;
+                        image.setRGB(i,minY,colorARGB);
+                    }
+                    ziterator+=deltaZiterator;
+                }
+
+                currentY1+=deltaY1;
+                currentY2+=deltaY2;
+                currentZ1+=deltaZ1;
+                currentZ2+=deltaZ2;
+            }
+        }
+
+        //masodik egyenes
+        if(x[1]!=x[2]){
+
+            if(baseIsBased){
+                currentY1=y[1]+0.51f;
+                currentY2=middleY+0.51f;
+                deltaY1=(y[2]-y[1])/(float)(x[2]-x[1]);
+                deltaY2=(y[2]-y[0])/(float)(x[2]-x[0]);
+                currentZ1=z[1];
+                currentZ2=middleZ;
+                deltaZ1=(z[2]-z[1])/(float)(x[2]-x[1]);
+                deltaZ2=(z[2]-z[0])/(float)(x[2]-x[0]);
+            }
+            else{
+                currentY2=y[1]+0.51f;
+                currentY1=middleY+0.51f;
+                deltaY2=(y[2]-y[1])/(float)(x[2]-x[1]);
+                deltaY1=(y[2]-y[0])/(float)(x[2]-x[0]);
+                currentZ2=z[1];
+                currentZ1=middleZ;
+                deltaZ2=(z[2]-z[1])/(float)(x[2]-x[1]);
+                deltaZ1=(z[2]-z[0])/(float)(x[2]-x[0]);
+            }
+
+            for(int i=x[1]<0?0:x[1];i<=x[2]&&i<MainFrame.SCREEN_WIDTH;i++){
+                minY=(int)currentY1;
+                maxY=(int)currentY2;
+
+                if(minY> MainFrame.SCREEN_HEIGHT)
+                    minY=MainFrame.SCREEN_HEIGHT-1;
+                else if(minY<0)
+                    minY=0;
+
+                maxY=(int)currentY2;
+                if(maxY> MainFrame.SCREEN_HEIGHT)
+                    maxY=MainFrame.SCREEN_HEIGHT-1;
+                else if(maxY<0)
+                    maxY=0;
+
+                ziterator=currentZ1;
+                deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
+                for(;minY<=maxY;minY++){
+                    if(ziterator<depthBuffer[i][minY]){
+                        depthBuffer[i][minY]=ziterator;
+                        image.setRGB(i,minY,colorARGB);
+                    }
+                    ziterator+=deltaZiterator;
+                }
+
+                currentY1+=deltaY1;
+                currentY2+=deltaY2;
+                currentZ1+=deltaZ1;
+                currentZ2+=deltaZ2;
+            }
+        }
     }
 
 

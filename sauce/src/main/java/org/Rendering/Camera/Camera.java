@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Camera {
@@ -68,14 +69,9 @@ public class Camera {
         calculateOrientation();
     }
 
-    /**
-     * Zeichnet alle Drawable-Objekte, die zu dieser Kamera geordnet sein
-     * @param g Die Graphics-Kontext, in der die Sachen gezeichnet werden sollen
-     */
-    public void render(Graphics g, float[][] depthBuffer){
-        calculateOrientation();
 
-        g.setColor(Color.red);
+    public void render(BufferedImage image, float[][] depthBuffer){
+        calculateOrientation();
 
         int[] indices=new int[drawables.size()];
         float[] sqrDistances=new float[drawables.size()];
@@ -113,7 +109,7 @@ public class Camera {
             }
 
             //System.out.println("rendered: "+drawables.get(indices[i]).getName());
-            drawables.get(indices[i]).render(g,depthBuffer,this);
+            drawables.get(indices[i]).render(image,depthBuffer,this);
         }
     }
 

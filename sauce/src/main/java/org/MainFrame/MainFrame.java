@@ -16,17 +16,17 @@ public class MainFrame extends JFrame {
 
     private STATE currentState=STATE.GAME;
 
-    private int width;
-    private int height;
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
 
     public MainFrame(String name){
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.width=(int)screenSize.getWidth();
-        this.height=(int)screenSize.getHeight();
+        SCREEN_WIDTH=(int)screenSize.getWidth();
+        SCREEN_HEIGHT=(int)screenSize.getHeight();
 
-        this.setSize(this.width,this.height);
+        this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
 
         this.setLayout(new GridLayout(1,1));
 
@@ -39,11 +39,11 @@ public class MainFrame extends JFrame {
         while(currentState!=STATE.QUIT){
             switch (currentState){
                 case GAME:
-                    GameScreen gs=new GameScreen(this.width,this.height);
+                    GameScreen gs=new GameScreen(SCREEN_WIDTH,SCREEN_HEIGHT);
                     this.add(gs);
                     this.setVisible(true);
                     while(currentState==STATE.GAME){
-                        try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
+                        //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
                         gs.frame();
                     }
                     break;
