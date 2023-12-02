@@ -4,6 +4,7 @@ import main.java.org.LinearAlgebruh.*;
 import main.java.org.Rendering.Camera.Camera;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * Eine Basisklasse für alle Objekte, die von einer Kamera gezeichnet werden sollen.
@@ -56,9 +57,10 @@ public abstract class Drawable {
     /**
      * Eine abstrakte Funktion, die dann wird aufgerufen, falls das Objekt gezeichnet werden soll.
      * @param g Die Graphics-Kontext, in der das Objekt gezeichnet werden soll.
+     * @param depthBuffer Der Tiefenpuffer
      * @param cam Die Kamera, nach deren Orientation die Bildschirmpositionen berechnet werden sollen.
      */
-    public void render(Graphics g, Camera cam){
+    public void render(Graphics g, float[][] depthBuffer, Camera cam){
         g.setColor(Color.red);
 
         Vector3 cameraPos=cam.getPosition();

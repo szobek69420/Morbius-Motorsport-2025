@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Rendering.Camera.Camera;
+import main.java.org.Rendering.Drawables.Cube;
 
 public class GameScreen extends JPanel {
 
@@ -34,6 +36,14 @@ public class GameScreen extends JPanel {
         //---------------------------
 
         Camera cum=new Camera(this.width,this.height);
+
+        Cube kuba=new Cube(Color.yellow);
+        kuba.setPosition(new Vector3(3,-2,3));
+
+        cum.addDrawable(kuba);
+        cum.setYaw(0);
+        cum.setFOV(50);
+
         Camera.main=cum;
     }
 
@@ -87,6 +97,8 @@ public class GameScreen extends JPanel {
             super.paint(g);
 
             clearBuffers();
+
+            Camera.main.render(imageGraphics,depthBuffer);
 
             g.drawImage(image,0,0,this);
         }
