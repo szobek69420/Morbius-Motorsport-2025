@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 
 /**
@@ -69,6 +71,16 @@ public class InputManager  {
     public static void showCursor(JFrame frame){
         frame.setCursor(Cursor.getDefaultCursor());
     }
+
+    /**
+     * @hidden
+     */
+    public static boolean MOUSE_LEFT=false;
+
+    /**
+     * @hidden
+     */
+    public static boolean MOUSE_RIGHT=false;
 
     /**
      * @hidden
@@ -172,6 +184,34 @@ public class InputManager  {
                 case KeyEvent.VK_RIGHT->RIGHT=false;
                 case KeyEvent.VK_ESCAPE->ESCAPE=false;
             }
+        }
+    }
+
+    public static class MouseInput implements MouseListener {
+        @Override
+        public void mouseClicked(MouseEvent arg0) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent arg0) { }
+
+        @Override
+        public void mouseExited(MouseEvent arg0) { }
+
+        @Override
+        public void mousePressed(MouseEvent arg0) {
+            if(SwingUtilities.isLeftMouseButton(arg0))
+                MOUSE_LEFT=true;
+            else if(SwingUtilities.isRightMouseButton(arg0))
+                MOUSE_RIGHT=true;
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent arg0) {
+            if(SwingUtilities.isLeftMouseButton(arg0))
+                MOUSE_LEFT=false;
+            else if(SwingUtilities.isRightMouseButton(arg0))
+                MOUSE_RIGHT=false;
         }
     }
 }

@@ -10,6 +10,7 @@ import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Rendering.Drawables.SelectionCube;
 import main.java.org.Updateable.Player;
+import main.java.org.World.BlockTypes;
 import main.java.org.World.Chunk;
 import main.java.org.Rendering.Drawables.Cube;
 import main.java.org.World.ChunkManager;
@@ -65,6 +66,8 @@ public class GameScreen extends JPanel {
     private int frameCount=0;
     private long lastFrame=0;
 
+    private double lastBlockBreak=0;
+
     public void frame(double deltaTime, boolean chunkLoad){
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
@@ -77,9 +80,17 @@ public class GameScreen extends JPanel {
 
             player.update(deltaTime);
             this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
+
+            lastBlockBreak+=deltaTime;
             RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
             if(rh!=null){
                 selectionKuba.setPosition(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z));
+
+                if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.1){
+                    lastBlockBreak=0;
+                    chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.AIR);
+                    chunkManager.reloadChunk(rh.chunkX,rh.chunkZ,player);
+                }
             }
             else{
                 selectionKuba.setPosition(new Vector3(0,-10000,0));

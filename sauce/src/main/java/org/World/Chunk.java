@@ -13,6 +13,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Chunk extends Drawable {
     public final int chunkX;
@@ -47,18 +48,56 @@ public class Chunk extends Drawable {
             }
         }
 
+        //terrain
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
                 for(int z=0;z<16;z++){
                     int level= heightMap[x+1][z+1];
                     if(y>level)
                         blocks[y][x][z]=BlockTypes.AIR;
-                    else if(y==level)
-                        blocks[y][x][z]=BlockTypes.GRASS;
-                    else if(y>level-3)
-                        blocks[y][x][z]=BlockTypes.DIRT;
+                    else if(y==level){
+                        if(level>40)
+                            blocks[y][x][z]=BlockTypes.STONE;
+                        else
+                            blocks[y][x][z]=BlockTypes.GRASS;
+                    }
+                    else if(y>level-3){
+                        if(level>40){
+                            blocks[y][x][z]=BlockTypes.STONE;
+                        }
+                        else
+                            blocks[y][x][z]=BlockTypes.DIRT;
+                    }
                     else
                         blocks[y][x][z]=BlockTypes.STONE;
+                }
+            }
+        }
+
+        //trees
+        Random random=new Random(chunkX*10000+chunkZ);
+        for(int x=2;x<14;x++){
+            for(int z=2;z<14;z++){
+                //tree can spawn
+                int y=heightMap[x+1][z+1];
+                if(y>43)
+                    continue;
+
+                if(random.nextFloat()>0.99f&&blocks[y][x][z]==BlockTypes.GRASS){
+                    blocks[y+1][x][z]=BlockTypes.LOG;
+                    blocks[y+2][x][z]=BlockTypes.LOG;
+                    blocks[y+3][x][z]=BlockTypes.LOG;
+                    blocks[y+4][x][z]=BlockTypes.LOG;
+                    blocks[y+4][x][z+1]=BlockTypes.LEAVES;
+                    blocks[y+4][x][z+2]=BlockTypes.LEAVES;
+                    blocks[y+4][x][z-1]=BlockTypes.LEAVES;
+                    blocks[y+4][x][z-2]=BlockTypes.LEAVES;
+                    blocks[y+4][x+1][z]=BlockTypes.LEAVES;
+                    blocks[y+4][x+2][z]=BlockTypes.LEAVES;
+                    blocks[y+4][x-1][z]=BlockTypes.LEAVES;
+                    blocks[y+4][x-2][z]=BlockTypes.LEAVES;
+                    blocks[y+5][x][z]=BlockTypes.LEAVES;
+                    blocks[y+6][x][z]=BlockTypes.LEAVES;
                 }
             }
         }

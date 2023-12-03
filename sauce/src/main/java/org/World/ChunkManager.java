@@ -48,6 +48,33 @@ public class ChunkManager {
         }
     }
 
+    public void changeBlock(int chunkX, int chunkZ, int x, int y, int z, BlockTypes block){
+        ChangedBlockKey cbt=new ChangedBlockKey(chunkX, chunkZ);
+        if(!changedBlocks.containsKey(cbt)){
+            changedBlocks.put(cbt, new ArrayList<>());
+        }
+        changedBlocks.get(cbt).add(new ChangedBlock(block, x, y, z));
+    }
+
+    public void reloadChunk(int chunkX, int chunkZ,Player player){
+        boolean containsChunk=false;
+
+        for(Chunk chomk :loadedChunks){
+            if(chomk.chunkX==chunkX&&chomk.chunkZ==chunkZ){
+                Camera.main.removeDrawable(chomk);
+                loadedChunks.remove(chomk);
+                containsChunk=true;
+                break;
+            }
+        }
+
+        if(containsChunk){
+            Chunk chomk=new Chunk(chunkX,chunkZ,player,changedBlocks);
+            Camera.main.addDrawable(chomk);
+            loadedChunks.add(chomk);
+        }
+    }
+
     private boolean isChunkLoaded(int chunkX, int chunkZ){
         for(Chunk chomk : loadedChunks){
             if(chomk.chunkX==chunkX&&chomk.chunkZ==chunkZ)
@@ -77,9 +104,9 @@ public class ChunkManager {
 
     public RaycastHit gaycast(Vector3 pos, Vector3 direction, float range){
         Vector3.normalize(direction);
-        direction=Vector3.multiplyWithScalar(0.05f,direction);//a pontossag 1/20 meter
+        direction=Vector3.multiplyWithScalar(0.02f,direction);//a pontossag 1/50 meter
 
-        int range2=(int)(range*20);
+        int range2=(int)(range*50);
 
         int[] chunkPos;
         RaycastHit rh;

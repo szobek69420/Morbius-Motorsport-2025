@@ -48,6 +48,7 @@ public class MainFrame extends JFrame {
                     this.add(gs);
 
                     this.addKeyListener(new InputManager.KeyInput());
+                    this.addMouseListener(new InputManager.MouseInput());
                     InputManager.hideCursor(this);
 
                     this.requestFocus();

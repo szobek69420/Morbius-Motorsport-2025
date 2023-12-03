@@ -37,11 +37,27 @@ public class BlockColours {
             new Color(80,40,24),
 
             //GRASS
-            new Color(230,155,18),
-            new Color(210,140,16),
-            new Color(170,110,12),
-            new Color(190,125,14),
-            new Color(250,170,20),
-            new Color(150,95,10),
+            new Color(9,108,9),
+            new Color(8,96,8),
+            new Color(6,72,6),
+            new Color(7,84,7),
+            new Color(10,120,10),
+            new Color(5,60,5),
+
+            //LOG
+            new Color(162,108,46),
+            new Color(144,96,42),
+            new Color(108,72,34),
+            new Color(126,84,38),
+            new Color(180,120,50),
+            new Color(90,60,30),
+
+            //LEAVES
+            new Color(90,171,0),
+            new Color(80,152,0),
+            new Color(60,114,0),
+            new Color(70,133,0),
+            new Color(100,190,0),
+            new Color(50,95,0)
     };
 }

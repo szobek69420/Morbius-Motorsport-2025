@@ -5,4 +5,6 @@ public enum BlockTypes {
     STONE,
     DIRT,
     GRASS,
+    LOG,
+    LEAVES
 }
