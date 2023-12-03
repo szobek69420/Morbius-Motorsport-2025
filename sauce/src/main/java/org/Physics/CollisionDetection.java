@@ -48,13 +48,10 @@ public class CollisionDetection {
 
     /**
      * Simuliert die Bewegung der Körper.
-     * Überprüft, dass es keinen solchen Collidern gibt, die mit einem anderen Collider überlappen.
+     * Überprüft, dass es keinen solchen Collider gibt, die mit einem anderen Collider überlappen.
      * @param deltaTime die Zeit, die seit dem letzten Frame verging.
      */
     public void CalculatePhysics(double deltaTime){
-        /*for(AABB aabb : nonKinematic)
-            aabb.move(deltaTime);*/
-
         for(AABB aabb:nonKinematic){
             for (AABB aabb2:kinematic){
                 AABB.resolveCollision(aabb,aabb2);

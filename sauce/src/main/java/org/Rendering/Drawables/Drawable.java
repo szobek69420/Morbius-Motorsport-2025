@@ -174,6 +174,7 @@ public abstract class Drawable {
                 case 1:
                     int[] modX2=new int[4];
                     int[] modY2=new int[4];
+                    float[] modZ2=new float[4];
                     Vector3[] jok2=new Vector3[2];
                     int index3=0;
                     Vector3 rossz=null;
@@ -183,6 +184,8 @@ public abstract class Drawable {
                             //System.out.println(x[indices[i*3+j]]+" "+y[indices[i*3+j]]);
                             modX2[index3]=x[indices[i*3+j]];
                             modY2[index3]=y[indices[i*3+j]];
+                            modZ2[index3]=z[indices[i*3+j]];
+
                             jok2[index3]=transformedVertices[indices[i*3+j]];
                             index3++;
                         }
@@ -206,17 +209,18 @@ public abstract class Drawable {
 
                         modX2[2+j]=(int)((0.5f*GAME_WIDTH-(temp.get(0)*onePerNearPlaneWidth)*0.5f*GAME_WIDTH));
                         modY2[2+j]=(int)(0.5f*GAME_HEIGHT-(temp.get(1)*onePerNearPlaneHeight)*0.5f*GAME_HEIGHT);
+                        modZ2[2+j]=nearPlane;
                     }
 
-                    /*g.setColor(faceColors[i]);
-                    //g.fillPolygon(modX2,modY2,4);
-                    g.fillPolygon(new int[]{modX2[0],modX2[1],modX2[2]},new int[]{modY2[0],modY2[1],modY2[2]},3);
-                    g.fillPolygon(new int[]{modX2[1],modX2[2],modX2[3]},new int[]{modY2[1],modY2[2],modY2[3]},3);*/
+
+                    drawTriangle(new int[]{modX2[0],modX2[1],modX2[2]},new int[]{modY2[0],modY2[1],modY2[2]},new float[]{modZ2[0],modZ2[1],modZ2[2]},image,depthBuffer,faceColors[i].getRGB());
+                    drawTriangle(new int[]{modX2[1],modX2[2],modX2[3]},new int[]{modY2[1],modY2[2],modY2[3]},new float[]{modZ2[1],modZ2[2],modZ2[3]},image,depthBuffer,faceColors[i].getRGB());
                     break;
 
                 case 2:
                     int[] modX=new int[3];
                     int[] modY=new int[3];
+                    float[] modZ=new float[3];
                     Vector3 jo=null;
                     for(int j=0;j<3;j++){
                         if(!isBehindView[i*3+j])
@@ -224,6 +228,7 @@ public abstract class Drawable {
                             //System.out.println(x[indices[i*3+j]]+" "+y[indices[i*3+j]]);
                             modX[0]=x[indices[i*3+j]];
                             modY[0]=y[indices[i*3+j]];
+                            modZ[0]=z[indices[i*3+j]];
                             jo=transformedVertices[indices[i*3+j]];
                             break;
                         }
@@ -251,6 +256,7 @@ public abstract class Drawable {
 
                         modX[index2]=(int)((0.5f*GAME_WIDTH-(temp.get(0)*onePerNearPlaneWidth)*0.5f*GAME_WIDTH));
                         modY[index2]=(int)(0.5f*GAME_HEIGHT-(temp.get(1)*onePerNearPlaneHeight)*0.5f*GAME_HEIGHT);
+                        modZ[index2]=nearPlane;
 
                         index2++;
                     }
@@ -258,6 +264,7 @@ public abstract class Drawable {
                     //System.out.println("skipped: "+x[indices[3*i]]+" "+y[indices[3*i]]+" "+x[indices[3*i+1]]+" "+y[indices[3*i+1]]+" "+x[indices[3*i+2]]+" "+y[indices[3*i+2]]);
                     /*g.setColor(faceColors[i]);
                     g.fillPolygon(modX,modY,3);*/
+                    drawTriangle(new int[]{modX[0],modX[1],modX[2]},new int[]{modY[0],modY[1],modY[2]},new float[]{modZ[0],modZ[1],modZ[2]},image,depthBuffer,faceColors[i].getRGB());
                     break;
             }
         }
@@ -310,24 +317,6 @@ public abstract class Drawable {
             }
         }
 
-        /*for(int i=0;i<3;i++)
-        {
-            for(int j=0;j<3-i-1;j++){
-                if(x[j]>x[j+1]){
-                    temp = x[j];
-                    x[j] = x[j+1];
-                    x[j+1] = temp;
-
-                    temp = y[j];
-                    y[j] = y[j+1];
-                    y[j+1] = temp;
-
-                    tempf = z[j];
-                    z[j] = z[j+1];
-                    z[j+1] = tempf;
-                }
-            }
-        }*/
 
         boolean baseIsBased=false;//ha a kozepso csucs a ket szelso csucs kozotti oldal felett van, akkor true
 

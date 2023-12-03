@@ -120,46 +120,48 @@ public class AABB {
             }
         }
 
-        if(isIntersecting[0]&&isIntersecting[1]&&isIntersecting[2]){
+        if(isIntersecting[0]&&isIntersecting[1]&&isIntersecting[2]) {
 
-            float min=Math.abs(delta[0]);
-            int index=0;
-            if(min>Math.abs(delta[1])){
-                min=Math.abs(delta[1]);
-                index=1;
+            float min = Math.abs(delta[0]);
+            int index = 0;
+            if (min > Math.abs(delta[1])) {
+                min = Math.abs(delta[1]);
+                index = 1;
             }
-            if(min>Math.abs(delta[2])){
-                min=Math.abs(delta[2]);
-                index=2;
+            if (min > Math.abs(delta[2])) {
+                min = Math.abs(delta[2]);
+                index = 2;
             }
 
-            nonKinematic.lastCollision=System.nanoTime();
-            nonKinematic.lastCollisionName=kinematic.getName();
-            kinematic.lastCollision=System.nanoTime();
-            kinematic.lastCollisionName= nonKinematic.getName();
-            switch (index){
+            nonKinematic.lastCollision = System.nanoTime();
+            nonKinematic.lastCollisionName = kinematic.getName();
+            kinematic.lastCollision = System.nanoTime();
+            kinematic.lastCollisionName = nonKinematic.getName();
+
+            switch (index) {
                 case 1:
-                    if(nonKinematic.getVelocityByReference().get(1)>0) {
-                        nonKinematic.lastCollisionType=CollisionType.TOP;
-                        kinematic.lastCollisionType=CollisionType.BOTTOM;
-                    }
-                    else {
+                    if (nonKinematic.getVelocityByReference().get(1) > 0) {
+                        nonKinematic.lastCollisionType = CollisionType.TOP;
+                        kinematic.lastCollisionType = CollisionType.BOTTOM;
+                    } else {
                         nonKinematic.lastCollisionType = CollisionType.BOTTOM;
-                        kinematic.lastCollisionType=CollisionType.TOP;
+                        kinematic.lastCollisionType = CollisionType.TOP;
                     }
                     break;
 
                 default:
-                    nonKinematic.lastCollisionType=CollisionType.SIDE;
-                    kinematic.lastCollisionType=CollisionType.SIDE;
+                    nonKinematic.lastCollisionType = CollisionType.SIDE;
+                    kinematic.lastCollisionType = CollisionType.SIDE;
                     break;
             }
 
-            nonKinematic.position.set(index,nonKinematic.position.get(index)+delta[index]);
-            if(delta[index]>0&&nonKinematic.velocity.get(index)<0)
-                nonKinematic.velocity.set(index,0);
-            else if(delta[index]<0&&nonKinematic.velocity.get(index)>0)
-                nonKinematic.velocity.set(index,0);
+            nonKinematic.position.set(index, nonKinematic.position.get(index) + delta[index]);
+            if (delta[index] > 0 && nonKinematic.velocity.get(index) < 0)
+                nonKinematic.velocity.set(index, 0);
+            else if (delta[index] < 0 && nonKinematic.velocity.get(index) > 0)
+                nonKinematic.velocity.set(index, 0);
+
+
 
             //System.out.println("collision");
             return true;

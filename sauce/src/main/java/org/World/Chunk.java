@@ -1,6 +1,7 @@
 package main.java.org.World;
 
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.Noice.OpenSimplex2S;
 import main.java.org.Physics.AABB;
 import main.java.org.Physics.CollisionDetection;
 import main.java.org.Rendering.Drawables.Drawable;
@@ -18,6 +19,8 @@ public class Chunk extends Drawable {
 
     private BlockTypes[][][] blocks;
 
+    private int[][] heightMap;
+
     private CollisionDetection cd;
 
     public Chunk(int chunkX,int chunkZ, Player player){
@@ -27,15 +30,26 @@ public class Chunk extends Drawable {
         this.pos=new Vector3(chunkX*16,0,chunkZ*16);
         this.scale=new Vector3(1,1,1);
 
+        int basedX=chunkX*16;
+        int basedZ=chunkZ*16;
+
         cd=new CollisionDetection();
         player.addToPhysics(cd);
 
         blocks=new BlockTypes[50][16][16];
 
+        heightMap=new int[18][18];
+
+        for(int i=0;i<18;i++){
+            for(int j=0;j<18;j++){
+                heightMap[i][j]=30+(int)(19*OpenSimplex2S.noise3_ImproveXY(0, (basedX+i-1) * 0.01, (basedZ+j-1) * 0.023, 0.0));
+            }
+        }
+
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
                 for(int z=0;z<16;z++){
-                    int level=(x+z)/2;
+                    int level= heightMap[x+1][z+1];
                     if(y>level)
                         blocks[y][x][z]=BlockTypes.AIR;
                     else if(y==level)
@@ -53,8 +67,6 @@ public class Chunk extends Drawable {
         List<Color> faceColours=new ArrayList<>();
 
         boolean shouldHaveCollider;
-        int basedX=chunkX*16;
-        int basedZ=chunkZ*16;
         int indexBase=0;
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
@@ -64,7 +76,7 @@ public class Chunk extends Drawable {
 
                     shouldHaveCollider=false;
                     //-z
-                    if(z==0||blocks[y][x][z-1]==BlockTypes.AIR){
+                    if((z==0&&heightMap[x+1][0]<y)||(z!=0&&blocks[y][x][z-1]==BlockTypes.AIR)){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                                 new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
@@ -82,7 +94,7 @@ public class Chunk extends Drawable {
                     }
 
                     //-x
-                    if(x==0||blocks[y][x-1][z]==BlockTypes.AIR){
+                    if((x==0&&heightMap[0][z+1]<y)||(x!=0&&blocks[y][x-1][z]==BlockTypes.AIR)){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
                                 new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
@@ -100,7 +112,7 @@ public class Chunk extends Drawable {
                     }
 
                     //+z
-                    if(z==15||blocks[y][x][z+1]==BlockTypes.AIR){
+                    if((z==15&&heightMap[x+1][17]<y)||(z!=15&&blocks[y][x][z+1]==BlockTypes.AIR)){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                                 new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
@@ -118,7 +130,7 @@ public class Chunk extends Drawable {
                     }
 
                     //+x
-                    if(x==15||blocks[y][x+1][z]==BlockTypes.AIR){
+                    if((x==15&&heightMap[17][z+1]<y)||(x!=15&&blocks[y][x+1][z]==BlockTypes.AIR)){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                                 new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
