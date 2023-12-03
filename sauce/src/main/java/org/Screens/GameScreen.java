@@ -67,6 +67,7 @@ public class GameScreen extends JPanel {
     private long lastFrame=0;
 
     private double lastBlockBreak=0;
+    private double lastBlockPlace=0;
 
     public void frame(double deltaTime, boolean chunkLoad){
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
@@ -82,13 +83,88 @@ public class GameScreen extends JPanel {
             this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
 
             lastBlockBreak+=deltaTime;
+            lastBlockPlace+=deltaTime;
             RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
             if(rh!=null){
-                selectionKuba.setPosition(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z));
+                Vector3 selectionPosition=new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z);
+                selectionKuba.setPosition(selectionPosition);
 
                 if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.1){
                     lastBlockBreak=0;
                     chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.AIR);
+                    chunkManager.reloadChunk(rh.chunkX,rh.chunkZ,player);
+                }
+                else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.2){
+                    lastBlockPlace=0;
+                    Vector3 tempDeltaPos=new Vector3(
+                            rh.point.get(0)-selectionPosition.get(0),
+                            rh.point.get(1)-selectionPosition.get(1),
+                            rh.point.get(2)-selectionPosition.get(2)
+                            );
+
+                    float tempMax=Math.abs(tempDeltaPos.get(0));
+                    int tempMaxIndex=0;
+                    if(tempMax<Math.abs(tempDeltaPos.get(1))){
+                        tempMax=Math.abs(tempDeltaPos.get(1));
+                        tempMaxIndex=1;
+                    }
+                    if(tempMax<Math.abs(tempDeltaPos.get(2))){
+                        tempMax=Math.abs(tempDeltaPos.get(2));
+                        tempMaxIndex=2;
+                    }
+
+                    switch(tempMaxIndex){
+                        case 0:
+                            if(tempDeltaPos.get(0)<0) {
+                                rh.x--;
+                                if (rh.x < 0) {
+                                    rh.x = 15;
+                                    rh.chunkX--;
+                                }
+                            }
+                            else{
+                                rh.x++;
+                                if (rh.x >15) {
+                                    rh.x = 0;
+                                    rh.chunkX++;
+                                }
+                            }
+                            break;
+
+                        case 1:
+                            if(tempDeltaPos.get(1)<0) {
+                                rh.y--;
+                                if (rh.y < 0) {
+                                    rh.y = 0;
+                                }
+                            }
+                            else{
+                                rh.y++;
+                                if (rh.y >49) {
+                                    rh.y = 49;
+                                }
+                            }
+                            break;
+
+                        case 2:
+                            if(tempDeltaPos.get(2)<0) {
+                                rh.z--;
+                                if (rh.z < 0) {
+                                    rh.z = 15;
+                                    rh.chunkZ--;
+                                }
+                            }
+                            else{
+                                rh.z++;
+                                if (rh.z >15) {
+                                    rh.z = 0;
+                                    rh.chunkZ++;
+                                }
+                            }
+                            break;
+                    }
+
+                    chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.YELLOW);
                     chunkManager.reloadChunk(rh.chunkX,rh.chunkZ,player);
                 }
             }
@@ -100,7 +176,7 @@ public class GameScreen extends JPanel {
             fg.repaint();
 
             if((System.nanoTime()-lastFrame)*0.000000001>1){
-                System.out.println(frameCount);
+                System.out.println("fps: "+frameCount);
 
                 lastFrame=System.nanoTime();
                 frameCount=0;
@@ -155,6 +231,14 @@ public class GameScreen extends JPanel {
             clearBuffers();
 
             Camera.main.render(image,depthBuffer);
+
+            for(int i=this.width/2-2;i<=this.width/2;i++){
+                for(int j=this.height/2-2;j<=this.height/2;j++){
+                    int temp=image.getRGB(i,j);
+                    temp^=0xFFFFFFFF;
+                    image.setRGB(i,j,temp);
+                }
+            }
 
             g.drawImage(image,0,0,this);
         }

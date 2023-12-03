@@ -3,12 +3,12 @@ package main.java.org.Physics;
 import main.java.org.LinearAlgebruh.Vector3;
 
 public class RaycastHit {
-    public final Vector3 point;
-    public final int chunkX;
-    public final int chunkZ;
+    public Vector3 point;
+    public int chunkX;
+    public int chunkZ;
 
     //coordinates inside a chunk
-    public final int x,y,z;
+    public int x,y,z;
 
     public RaycastHit(Vector3 point, int chunkX, int chunkZ, int x, int y, int z){
         this.point=point;

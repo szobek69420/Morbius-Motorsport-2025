@@ -58,6 +58,14 @@ public class BlockColours {
             new Color(60,114,0),
             new Color(70,133,0),
             new Color(100,190,0),
-            new Color(50,95,0)
+            new Color(50,95,0),
+
+            //YELLOW
+            new Color(225,198,54),
+            new Color(200,176,48),
+            new Color(150,132,36),
+            new Color(175,154,42),
+            new Color(250,220,60),
+            new Color(125,110,30)
     };
 }

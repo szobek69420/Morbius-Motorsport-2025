@@ -6,5 +6,6 @@ public enum BlockTypes {
     DIRT,
     GRASS,
     LOG,
-    LEAVES
+    LEAVES,
+    YELLOW
 }

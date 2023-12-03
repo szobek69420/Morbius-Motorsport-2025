@@ -59,7 +59,7 @@ public class MainFrame extends JFrame {
                     while(currentState==STATE.GAME){
                         if(InputManager.ESCAPE){
                             currentState=STATE.QUIT;
-                            System.out.println("broken");
+                            System.out.println("gone");
                             break;
                         }
                         //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
