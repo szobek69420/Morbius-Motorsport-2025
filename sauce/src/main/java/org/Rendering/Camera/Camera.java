@@ -14,7 +14,12 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=100;
+    public static final float RENDER_DISTANCE=50;
+    public static final float FOG_START=30;
+    public static final float ONE_PER_FOG_LENGTH=0.05f;
+
+    public static final Color CLEAR_COLOR=new Color(0,170,250);
+    public static final int CLEAR_COLOR_INT=CLEAR_COLOR.getRGB();
 
     private int GAME_WIDTH,GAME_HEIGHT;
 

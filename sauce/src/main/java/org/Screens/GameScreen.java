@@ -56,26 +56,30 @@ public class GameScreen extends JPanel {
     private int frameCount=0;
     private long lastFrame=0;
 
-    public void frame(double deltaTime){
+    public void frame(double deltaTime, boolean chunkLoad){
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
-        this.chunkManager.unloadChunk(chunkPos[0],chunkPos[1]);
-        this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
 
-        InputManager.fetchMousePosition();
-
-        player.update(deltaTime);
-        this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
-
-        bg.repaint();
-        fg.repaint();
-
-        if((System.nanoTime()-lastFrame)*0.000000001>1){
-            System.out.println(frameCount);
-
-            lastFrame=System.nanoTime();
-            frameCount=0;
+        if(chunkLoad){
+            this.chunkManager.unloadChunk(chunkPos[0],chunkPos[1]);
+            this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
         }
-        frameCount++;
+        else{
+            InputManager.fetchMousePosition();
+
+            player.update(deltaTime);
+            this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
+
+            bg.repaint();
+            fg.repaint();
+
+            if((System.nanoTime()-lastFrame)*0.000000001>1){
+                System.out.println(frameCount);
+
+                lastFrame=System.nanoTime();
+                frameCount=0;
+            }
+            frameCount++;
+        }
     }
 
     private static class Foreground extends JPanel{
@@ -91,7 +95,6 @@ public class GameScreen extends JPanel {
 
     private static class Background extends JPanel{
 
-        private static final Color CLEAR_COLOR=new Color(0,170,250);
 
         private int width;
         private int height;
@@ -137,7 +140,7 @@ public class GameScreen extends JPanel {
                     depthBuffer[i][j]=renderDistance;
             }
 
-            imageGraphics.setColor(CLEAR_COLOR);
+            imageGraphics.setColor(Camera.CLEAR_COLOR);
             imageGraphics.fillRect(0,0,this.width,this.height);
         }
     }

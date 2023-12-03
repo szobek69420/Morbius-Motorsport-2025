@@ -54,6 +54,7 @@ public class MainFrame extends JFrame {
                     this.setVisible(true);
 
                     double lastFrame=System.nanoTime()*0.000000001;
+                    double lastChunkLoad=0;
                     while(currentState==STATE.GAME){
                         if(InputManager.ESCAPE){
                             currentState=STATE.QUIT;
@@ -61,15 +62,21 @@ public class MainFrame extends JFrame {
                             break;
                         }
                         //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
-                        double deltaTime=System.nanoTime()*0.000000001-lastFrame;
 
+                        if(System.nanoTime()*0.000000001-lastChunkLoad>0.05){
+                            gs.frame(0,true);
+                            lastChunkLoad=System.nanoTime()*0.000000001;
+                            continue;
+                        }
+
+                        double deltaTime=System.nanoTime()*0.000000001-lastFrame;
                         if(deltaTime<0.0016){
                             continue;
                         }
 
                         lastFrame+=deltaTime;
 
-                        gs.frame(deltaTime);
+                        gs.frame(deltaTime,false);
                     }
                     break;
             }

@@ -390,7 +390,10 @@ public abstract class Drawable {
                 for(;minY<=maxY;minY++){
                     if(ziterator<depthBuffer[i][minY]){
                         depthBuffer[i][minY]=ziterator;
-                        image.setRGB(i,minY,colorARGB);
+                        if(ziterator>Camera.FOG_START)
+                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        else
+                            image.setRGB(i,minY,colorARGB);
                     }
                     ziterator+=deltaZiterator;
                 }
@@ -446,7 +449,10 @@ public abstract class Drawable {
                 for(;minY<=maxY;minY++){
                     if(ziterator<depthBuffer[i][minY]){
                         depthBuffer[i][minY]=ziterator;
-                        image.setRGB(i,minY,colorARGB);
+                        if(ziterator>Camera.FOG_START)
+                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        else
+                            image.setRGB(i,minY,colorARGB);
                     }
                     ziterator+=deltaZiterator;
                 }
@@ -506,4 +512,29 @@ public abstract class Drawable {
     public final String getName(){
         return this.name;
     }
+
+    public static int colorLerp(int a, int b, float i){
+        int colour=0xFF000000;
+        int temp;
+        //r
+        temp=a&0x00FF0000;
+        temp=(int)(((b&0x00FF0000)-temp)*i)+temp;
+        temp&=0x00FF0000;
+        colour|=temp;
+
+        //g
+        temp=a&0x0000FF00;
+        temp=(int)(((b&0x0000FF00)-temp)*i)+temp;
+        temp&=0x0000FF00;
+        colour|=temp;
+
+        //b
+        temp=a&0x000000FF;
+        temp=(int)(((b&0x000000FF)-temp)*i)+temp;
+        temp&=0x000000FF;
+        colour|=temp;
+
+        return colour;
+    }
+
 }

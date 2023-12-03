@@ -65,7 +65,7 @@ public class Player implements Updateable{
         //BASED_FOV=Settings.getFov();
         //ZOOMED_FOV=Settings.getFov()/4;
         BASED_FOV=50;
-        ZOOMED_FOV=15;
+        ZOOMED_FOV=10;
 
         currentFov=BASED_FOV;
     }
