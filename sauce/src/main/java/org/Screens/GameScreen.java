@@ -41,13 +41,16 @@ public class GameScreen extends JPanel {
         Cube kuba=new Cube(Color.yellow);
         kuba.setPosition(new Vector3(3,-2,3));
 
-        Chunk chomk=new Chunk(1,1);
+        Chunk chomk=new Chunk(1,0);
+        Chunk chomk2=new Chunk(0,0);
 
         cum.addDrawable(kuba);
         cum.addDrawable(chomk);
-        cum.setYaw(0);
+        cum.addDrawable(chomk2);
+        cum.setYaw(30);
+        cum.setPitch(-20);
         cum.setFOV(50);
-        cum.setPosition(new Vector3(0,20,0));
+        cum.setPosition(new Vector3(-10,20,-10));
 
         Camera.main=cum;
     }
@@ -81,7 +84,7 @@ public class GameScreen extends JPanel {
 
     private static class Background extends JPanel{
 
-        private static final Color CLEAR_COLOR=new Color(255,0,0);
+        private static final Color CLEAR_COLOR=new Color(0,170,250);
 
         private int width;
         private int height;

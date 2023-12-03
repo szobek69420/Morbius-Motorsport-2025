@@ -1,6 +1,7 @@
 package main.java.org.Rendering.Drawables;
 
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.World.BlockColours;
 import main.java.org.World.BlockTypes;
 
 import java.awt.*;
@@ -25,10 +26,15 @@ public class Chunk extends Drawable{
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
                 for(int z=0;z<16;z++){
-                    if(y<(x+z)/2)
-                        blocks[y][x][z]=BlockTypes.STONE;
-                    else
+                    int level=(x+z)/2;
+                    if(y>level)
                         blocks[y][x][z]=BlockTypes.AIR;
+                    else if(y==level)
+                        blocks[y][x][z]=BlockTypes.GRASS;
+                    else if(y>level-3)
+                        blocks[y][x][z]=BlockTypes.DIRT;
+                    else
+                        blocks[y][x][z]=BlockTypes.STONE;
                 }
             }
         }
@@ -37,8 +43,6 @@ public class Chunk extends Drawable{
         List<Integer> indices=new ArrayList<>();
         List<Color> faceColours=new ArrayList<>();
 
-        float baseX=chunkX*16;
-        float baseZ=chunkZ*16;
         int indexBase=0;
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
@@ -49,15 +53,15 @@ public class Chunk extends Drawable{
                     //-z
                     if(z==0||blocks[y][x][z-1]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z - 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(200,200,200),
-                                new Color(200,200,200),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()]
                         }));
 
                         indexBase+=4;
@@ -66,15 +70,15 @@ public class Chunk extends Drawable{
                     //-x
                     if(x==0||blocks[y][x-1][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z + 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(160,160,160),
-                                new Color(160,160,160),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+1],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+1]
                         }));
 
                         indexBase+=4;
@@ -83,15 +87,15 @@ public class Chunk extends Drawable{
                     //+z
                     if(z==15||blocks[y][x][z+1]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z + 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(110,110,110),
-                                new Color(110,110,110),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+2],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+2]
                         }));
 
                         indexBase+=4;
@@ -100,15 +104,15 @@ public class Chunk extends Drawable{
                     //+x
                     if(x==15||blocks[y][x+1][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z - 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(140,140,140),
-                                new Color(140,140,140),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+3],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+3]
                         }));
 
                         indexBase+=4;
@@ -117,15 +121,15 @@ public class Chunk extends Drawable{
                     //+y
                     if(y==49||blocks[y+1][x][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y + 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x + 0.5f, y + 0.5f, baseZ + z + 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y + 0.5f, z + 0.5f),
+                                new Vector3(x + 0.5f, y + 0.5f, z + 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+1,indexBase+2,indexBase+2,indexBase+3,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(230,230,230),
-                                new Color(230,230,230),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+4],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+4]
                         }));
 
                         indexBase+=4;
@@ -134,15 +138,15 @@ public class Chunk extends Drawable{
                     //+-y
                     if(y==0||blocks[y-1][x][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z - 0.5f),
-                                new Vector3(baseX + x - 0.5f, y - 0.5f, baseZ + z + 0.5f),
-                                new Vector3(baseX + x + 0.5f, y - 0.5f, baseZ + z + 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
+                                new Vector3(x - 0.5f, y - 0.5f, z + 0.5f),
+                                new Vector3(x + 0.5f, y - 0.5f, z + 0.5f),
                         }));
                         indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
                         faceColours.addAll(List.of(new Color[]{
-                                new Color(80,80,80),
-                                new Color(80,80,80),
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+5],
+                                BlockColours.blockColours[6*blocks[y][x][z].ordinal()+5]
                         }));
 
                         indexBase+=4;
@@ -153,8 +157,16 @@ public class Chunk extends Drawable{
 
         int length=vertices.size();
         this.vertices=new Vector3[length];
-        for(int i=0;i<length;i++)
-            this.vertices[i]=vertices.get(i);
+        float minX=900;
+        float maxX=-900;
+        for(int i=0;i<length;i++) {
+            this.vertices[i] = vertices.get(i);
+            if(vertices.get(i).get(0)<minX)
+                minX=vertices.get(i).get(0);
+            if(vertices.get(i).get(0)>maxX)
+                maxX=vertices.get(i).get(0);
+        }
+        System.out.println(minX+" "+maxX);
 
         length=indices.size();
         this.indices=new int[length];
@@ -169,6 +181,5 @@ public class Chunk extends Drawable{
         calculateModelMatrix();
 
         this.setName("amogus");
-        System.out.println(this.vertices.length+" "+this.indices.length+" "+this.faceColors.length);
     }
 }

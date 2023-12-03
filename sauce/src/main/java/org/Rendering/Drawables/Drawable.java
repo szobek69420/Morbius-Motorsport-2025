@@ -385,13 +385,13 @@ public abstract class Drawable {
 
             for(int i=x[0]<0?0:x[0];i<=x[1]&&i<MainFrame.SCREEN_WIDTH;i++){
                 minY=(int)currentY1;
-                if(minY> MainFrame.SCREEN_HEIGHT)
+                if(minY>= MainFrame.SCREEN_HEIGHT)
                     minY=MainFrame.SCREEN_HEIGHT-1;
                 else if(minY<0)
                     minY=0;
 
                 maxY=(int)currentY2;
-                if(maxY> MainFrame.SCREEN_HEIGHT)
+                if(maxY>= MainFrame.SCREEN_HEIGHT)
                     maxY=MainFrame.SCREEN_HEIGHT-1;
                 else if(maxY<0)
                     maxY=0;
@@ -441,13 +441,13 @@ public abstract class Drawable {
                 minY=(int)currentY1;
                 maxY=(int)currentY2;
 
-                if(minY> MainFrame.SCREEN_HEIGHT)
+                if(minY>= MainFrame.SCREEN_HEIGHT)
                     minY=MainFrame.SCREEN_HEIGHT-1;
                 else if(minY<0)
                     minY=0;
 
                 maxY=(int)currentY2;
-                if(maxY> MainFrame.SCREEN_HEIGHT)
+                if(maxY>= MainFrame.SCREEN_HEIGHT)
                     maxY=MainFrame.SCREEN_HEIGHT-1;
                 else if(maxY<0)
                     maxY=0;
