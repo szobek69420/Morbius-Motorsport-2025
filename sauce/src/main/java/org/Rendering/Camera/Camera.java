@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=200;
+    public static final float RENDER_DISTANCE=100;
 
     private int GAME_WIDTH,GAME_HEIGHT;
 
@@ -73,11 +73,13 @@ public class Camera {
     public void render(BufferedImage image, float[][] depthBuffer){
         calculateOrientation();
 
-        int[] indices=new int[drawables.size()];
-        float[] sqrDistances=new float[drawables.size()];
+        int length=drawables.size();
+
+        int[] indices=new int[length];
+        float[] sqrDistances=new float[length];
 
         //calculating distance
-        for(int i=0;i<drawables.size();i++){
+        for(int i=0;i<length;i++){
             indices[i]=i;
             Vector3 temp=Vector3.difference(drawables.get(i).getPositionByReference(),this.pos);
 
@@ -85,8 +87,8 @@ public class Camera {
         }
 
         //sorting
-        for(int i=0;i<drawables.size();i++){
-            for(int j=0;j<drawables.size()-1;j++){
+        for(int i=0;i<length;i++){
+            for(int j=0;j<length-1;j++){
                 if(sqrDistances[j]<sqrDistances[j+1]){
 
                     float temp=sqrDistances[j];
@@ -100,15 +102,12 @@ public class Camera {
             }
         }
 
-        //System.out.println(left+" "+up+" "+forward);
-        for(int i=0;i<drawables.size();i++)
-        {
-            if(sqrDistances[i]>10000){
-                //System.out.println(i+" "+sqrDistances[indices[i]]);
-                continue;
-            }
 
-            //System.out.println("rendered: "+drawables.get(indices[i]).getName());
+        for(int i=0;i<length;i++)
+        {
+            if(indices[i]>=drawables.size())
+                continue;
+
             drawables.get(indices[i]).render(image,depthBuffer,this);
         }
     }

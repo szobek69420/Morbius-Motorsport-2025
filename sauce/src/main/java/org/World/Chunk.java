@@ -1,6 +1,10 @@
-package main.java.org.Rendering.Drawables;
+package main.java.org.World;
 
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.Physics.AABB;
+import main.java.org.Physics.CollisionDetection;
+import main.java.org.Rendering.Drawables.Drawable;
+import main.java.org.Updateable.Player;
 import main.java.org.World.BlockColours;
 import main.java.org.World.BlockTypes;
 
@@ -8,18 +12,23 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chunk extends Drawable{
-    private final int chunkX;
-    private final int chunkZ;
+public class Chunk extends Drawable {
+    public final int chunkX;
+    public final int chunkZ;
 
     private BlockTypes[][][] blocks;
 
-    public Chunk(int chunkX,int chunkZ){
+    private CollisionDetection cd;
+
+    public Chunk(int chunkX,int chunkZ, Player player){
         this.chunkX=chunkX;
         this.chunkZ=chunkZ;
 
         this.pos=new Vector3(chunkX*16,0,chunkZ*16);
         this.scale=new Vector3(1,1,1);
+
+        cd=new CollisionDetection();
+        player.addToPhysics(cd);
 
         blocks=new BlockTypes[50][16][16];
 
@@ -43,6 +52,9 @@ public class Chunk extends Drawable{
         List<Integer> indices=new ArrayList<>();
         List<Color> faceColours=new ArrayList<>();
 
+        boolean shouldHaveCollider;
+        int basedX=chunkX*16;
+        int basedZ=chunkZ*16;
         int indexBase=0;
         for(int y=0;y<50;y++){
             for(int x=0;x<16;x++){
@@ -50,6 +62,7 @@ public class Chunk extends Drawable{
                     if(blocks[y][x][z]==BlockTypes.AIR)
                         continue;
 
+                    shouldHaveCollider=false;
                     //-z
                     if(z==0||blocks[y][x][z-1]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
@@ -65,6 +78,7 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
 
                     //-x
@@ -82,6 +96,7 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
 
                     //+z
@@ -99,6 +114,7 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
 
                     //+x
@@ -116,6 +132,7 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
 
                     //+y
@@ -133,6 +150,7 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
 
                     //+-y
@@ -150,23 +168,20 @@ public class Chunk extends Drawable{
                         }));
 
                         indexBase+=4;
+                        shouldHaveCollider=true;
                     }
+
+                    if(shouldHaveCollider)
+                        cd.addAABB(new AABB(new Vector3(basedX+x,y,basedZ+z),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
                 }
             }
         }
 
         int length=vertices.size();
         this.vertices=new Vector3[length];
-        float minX=900;
-        float maxX=-900;
         for(int i=0;i<length;i++) {
             this.vertices[i] = vertices.get(i);
-            if(vertices.get(i).get(0)<minX)
-                minX=vertices.get(i).get(0);
-            if(vertices.get(i).get(0)>maxX)
-                maxX=vertices.get(i).get(0);
         }
-        System.out.println(minX+" "+maxX);
 
         length=indices.size();
         this.indices=new int[length];
@@ -181,5 +196,9 @@ public class Chunk extends Drawable{
         calculateModelMatrix();
 
         this.setName("amogus");
+    }
+
+    public void calculatePhysics(double deltaTime){
+        cd.CalculatePhysics(deltaTime);
     }
 }

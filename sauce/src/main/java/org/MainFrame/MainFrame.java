@@ -1,5 +1,6 @@
 package main.java.org.MainFrame;
 
+import main.java.org.InputManagement.InputManager;
 import main.java.org.Screens.GameScreen;
 
 import javax.swing.*;
@@ -15,6 +16,10 @@ public class MainFrame extends JFrame {
     };
 
     private STATE currentState=STATE.GAME;
+
+    public void setCurrentState(STATE state){
+        currentState=state;
+    }
 
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
@@ -41,10 +46,30 @@ public class MainFrame extends JFrame {
                 case GAME:
                     GameScreen gs=new GameScreen(SCREEN_WIDTH,SCREEN_HEIGHT);
                     this.add(gs);
+
+                    this.addKeyListener(new InputManager.KeyInput());
+                    InputManager.hideCursor(this);
+
+                    this.requestFocus();
                     this.setVisible(true);
+
+                    double lastFrame=System.nanoTime()*0.000000001;
                     while(currentState==STATE.GAME){
+                        if(InputManager.ESCAPE){
+                            currentState=STATE.QUIT;
+                            System.out.println("broken");
+                            break;
+                        }
                         //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
-                        gs.frame();
+                        double deltaTime=System.nanoTime()*0.000000001-lastFrame;
+
+                        if(deltaTime<0.0016){
+                            continue;
+                        }
+
+                        lastFrame+=deltaTime;
+
+                        gs.frame(deltaTime);
                     }
                     break;
             }

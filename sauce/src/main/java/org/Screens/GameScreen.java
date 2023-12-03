@@ -4,10 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import main.java.org.InputManagement.InputManager;
 import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Rendering.Camera.Camera;
-import main.java.org.Rendering.Drawables.Chunk;
+import main.java.org.Updateable.Player;
+import main.java.org.World.Chunk;
 import main.java.org.Rendering.Drawables.Cube;
+import main.java.org.World.ChunkManager;
 
 public class GameScreen extends JPanel {
 
@@ -16,6 +19,10 @@ public class GameScreen extends JPanel {
 
     private Foreground fg;
     private Background bg;
+
+    private ChunkManager chunkManager;
+
+    private Player player;
 
     public GameScreen(int width, int height){
         super();
@@ -34,31 +41,31 @@ public class GameScreen extends JPanel {
         this.add(fg);
         this.add(bg);
 
+        this.chunkManager=new ChunkManager();
+        this.player=new Player();
+
         //---------------------------
-
         Camera cum=new Camera(this.width,this.height);
-
-        Cube kuba=new Cube(Color.yellow);
-        kuba.setPosition(new Vector3(3,-2,3));
-
-        Chunk chomk=new Chunk(1,0);
-        Chunk chomk2=new Chunk(0,0);
-
-        cum.addDrawable(kuba);
-        cum.addDrawable(chomk);
-        cum.addDrawable(chomk2);
         cum.setYaw(30);
         cum.setPitch(-20);
         cum.setFOV(50);
         cum.setPosition(new Vector3(-10,20,-10));
-
         Camera.main=cum;
     }
 
     private int frameCount=0;
     private long lastFrame=0;
 
-    public void frame(){
+    public void frame(double deltaTime){
+        int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
+        this.chunkManager.unloadChunk(chunkPos[0],chunkPos[1]);
+        this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
+
+        InputManager.fetchMousePosition();
+
+        player.update(deltaTime);
+        this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
+
         bg.repaint();
         fg.repaint();
 
