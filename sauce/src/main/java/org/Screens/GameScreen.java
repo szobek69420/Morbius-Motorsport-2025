@@ -6,7 +6,9 @@ import java.awt.image.BufferedImage;
 
 import main.java.org.InputManagement.InputManager;
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
+import main.java.org.Rendering.Drawables.SelectionCube;
 import main.java.org.Updateable.Player;
 import main.java.org.World.Chunk;
 import main.java.org.Rendering.Drawables.Cube;
@@ -23,6 +25,8 @@ public class GameScreen extends JPanel {
     private ChunkManager chunkManager;
 
     private Player player;
+
+    private SelectionCube selectionKuba;
 
     public GameScreen(int width, int height){
         super();
@@ -44,6 +48,7 @@ public class GameScreen extends JPanel {
         this.chunkManager=new ChunkManager();
         this.player=new Player();
 
+
         //---------------------------
         Camera cum=new Camera(this.width,this.height);
         cum.setYaw(30);
@@ -51,6 +56,10 @@ public class GameScreen extends JPanel {
         cum.setFOV(50);
         cum.setPosition(new Vector3(-10,20,-10));
         Camera.main=cum;
+
+        this.selectionKuba=new SelectionCube(new Color(255,255,255));
+        this.selectionKuba.setScale(new Vector3(0.5f, 0.5f, 0.5f));
+        Camera.main.addDrawable(selectionKuba);
     }
 
     private int frameCount=0;
@@ -68,6 +77,13 @@ public class GameScreen extends JPanel {
 
             player.update(deltaTime);
             this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
+            RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
+            if(rh!=null){
+                selectionKuba.setPosition(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z));
+            }
+            else{
+                selectionKuba.setPosition(new Vector3(0,-10000,0));
+            }
 
             bg.repaint();
             fg.repaint();
@@ -135,13 +151,17 @@ public class GameScreen extends JPanel {
         private void clearBuffers(){
             float renderDistance=Camera.RENDER_DISTANCE;
 
-            for(int i=0;i<this.width;i++){
-                for(int j=0;j<this.height;j++)
-                    depthBuffer[i][j]=renderDistance;
-            }
+            clearDepthBuffer(renderDistance);
 
             imageGraphics.setColor(Camera.CLEAR_COLOR);
             imageGraphics.fillRect(0,0,this.width,this.height);
+        }
+
+        private void clearDepthBuffer(float clearValue){
+            for(int i=0;i<this.width;i++){
+                for(int j=0;j<this.height;j++)
+                    depthBuffer[i][j]=clearValue;
+            }
         }
     }
 }

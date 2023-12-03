@@ -94,6 +94,18 @@ public class AABB {
         this.lastCollisionName="";
     }
 
+    public boolean isInsideTheCollider(Vector3 point){
+        boolean isInside=true;
+        for(int i=0;i<3;i++){
+            if(Math.abs(point.get(i)-position.get(i))>scale.get(i)){
+                isInside=false;
+                break;
+            }
+        }
+
+        return isInside;
+    }
+
     /**
      * Eine statische Funktion, die Kollisionen zwischen kinematische und nicht kinematische Körper gelöst
      * @param nonKinematic ein nicht kinematischer Körper

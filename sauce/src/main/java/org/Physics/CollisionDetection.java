@@ -1,5 +1,8 @@
 package main.java.org.Physics;
 
+import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.World.ChunkManager;
+
 import java.util.ArrayList;
 
 /**
@@ -57,5 +60,23 @@ public class CollisionDetection {
                 AABB.resolveCollision(aabb,aabb2);
             }
         }
+    }
+
+    public RaycastHit isThereCollider(Vector3 point){
+        for(AABB aabb:kinematic){
+            if(aabb.isInsideTheCollider(point)){
+                int[] chunkPos= ChunkManager.getChunk(point);
+                return new RaycastHit(
+                        point,
+                        chunkPos[0],
+                        chunkPos[1],
+                        Math.round(aabb.getPositionByReference().get(0))-chunkPos[0]*16,
+                        Math.round(aabb.getPositionByReference().get(1)),
+                        Math.round(aabb.getPositionByReference().get(2))-chunkPos[1]*16
+                );
+            }
+        }
+
+        return null;
     }
 }

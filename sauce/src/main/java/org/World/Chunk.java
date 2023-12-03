@@ -12,6 +12,7 @@ import main.java.org.World.BlockTypes;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Chunk extends Drawable {
     public final int chunkX;
@@ -21,9 +22,9 @@ public class Chunk extends Drawable {
 
     private int[][] heightMap;
 
-    private CollisionDetection cd;
+    public final CollisionDetection cd;
 
-    public Chunk(int chunkX,int chunkZ, Player player){
+    public Chunk(int chunkX, int chunkZ, Player player, Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks){
         this.chunkX=chunkX;
         this.chunkZ=chunkZ;
 
@@ -61,6 +62,11 @@ public class Chunk extends Drawable {
                 }
             }
         }
+
+        //changed blocks
+        List<ChangedBlock> changedInThisChunk=changedBlocks.get(new ChangedBlockKey(chunkX, chunkZ));
+        for(ChangedBlock cbt : changedInThisChunk)
+            blocks[cbt.y][cbt.x][cbt.z]=cbt.block;
 
         List<Vector3> vertices=new ArrayList<>();
         List<Integer> indices=new ArrayList<>();

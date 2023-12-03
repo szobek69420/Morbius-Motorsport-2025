@@ -1,19 +1,26 @@
 package main.java.org.World;
 
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Updateable.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChunkManager {
     public static final int CHUNK_RENDER_DISTANCE=3;
 
     private List<Chunk> loadedChunks;
 
+    private Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks;
+
+
     public ChunkManager(){
         loadedChunks=new ArrayList<>();
+        changedBlocks=new HashMap<>();
     }
 
     public void loadChunk(int playerChunkX, int playerChunkZ, Player player){
@@ -25,7 +32,13 @@ public class ChunkManager {
                     }
 
                     if(!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
-                        Chunk chomk=new Chunk(playerChunkX+j,playerChunkZ+k, player);
+                        if(!changedBlocks.containsKey(new ChangedBlockKey(playerChunkX+j,playerChunkZ+k))){
+
+                            ChangedBlockKey cbt=new ChangedBlockKey(playerChunkX+j,playerChunkZ+k);
+                            changedBlocks.put(cbt, new ArrayList<>());
+                        }
+
+                        Chunk chomk=new Chunk(playerChunkX+j,playerChunkZ+k, player, changedBlocks);
                         loadedChunks.add(chomk);
                         Camera.main.addDrawable(chomk);
                         return;
@@ -59,6 +72,30 @@ public class ChunkManager {
             if(Math.abs(chomk.chunkX-playerChunkX)<2&&Math.abs(chomk.chunkZ-playerChunkZ)<2)
                 chomk.calculatePhysics(deltaTime);
         }
+    }
+
+
+    public RaycastHit gaycast(Vector3 pos, Vector3 direction, float range){
+        Vector3.normalize(direction);
+        direction=Vector3.multiplyWithScalar(0.05f,direction);//a pontossag 1/20 meter
+
+        int range2=(int)(range*20);
+
+        int[] chunkPos;
+        RaycastHit rh;
+        for(int i=0;i<range2;i++){
+            pos=Vector3.sum(pos,direction);
+            chunkPos=getChunk(pos);
+            for(Chunk chomk:loadedChunks){
+                if(chomk.chunkX==chunkPos[0]&&chomk.chunkZ==chunkPos[1]){
+                    rh=chomk.cd.isThereCollider(pos);
+                    if(rh!=null)
+                        return rh;
+                }
+            }
+        }
+
+        return null;
     }
 
     public static int[] getChunk(Vector3 pos){
