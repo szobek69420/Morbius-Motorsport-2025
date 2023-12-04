@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ChunkManager {
-    public static final int CHUNK_RENDER_DISTANCE=3;
+    public static final int CHUNK_RENDER_DISTANCE=2;
 
     private List<Chunk> loadedChunks;
 
@@ -41,6 +41,8 @@ public class ChunkManager {
                         Chunk chomk=new Chunk(playerChunkX+j,playerChunkZ+k, player, changedBlocks);
                         loadedChunks.add(chomk);
                         Camera.main.addDrawable(chomk);
+
+                        System.out.println("chunk "+(playerChunkX+j)+" "+(playerChunkZ+k+" loaded"));
                         return;
                     }
                 }

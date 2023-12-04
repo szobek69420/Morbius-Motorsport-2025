@@ -24,12 +24,18 @@ public class MainFrame extends JFrame {
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
 
+    public static int FRAME_BUFFER_WIDTH;
+    public static int FRAME_BUFFER_HEIGHT;
+
     public MainFrame(String name){
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         SCREEN_WIDTH=(int)screenSize.getWidth();
         SCREEN_HEIGHT=(int)screenSize.getHeight();
+
+        FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
+        FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
 
         this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
 
@@ -44,7 +50,7 @@ public class MainFrame extends JFrame {
         while(currentState!=STATE.QUIT){
             switch (currentState){
                 case GAME:
-                    GameScreen gs=new GameScreen(SCREEN_WIDTH,SCREEN_HEIGHT);
+                    GameScreen gs=new GameScreen();
                     this.add(gs);
 
                     this.addKeyListener(new InputManager.KeyInput());
@@ -54,31 +60,69 @@ public class MainFrame extends JFrame {
                     this.requestFocus();
                     this.setVisible(true);
 
-                    double lastFrame=System.nanoTime()*0.000000001;
-                    double lastChunkLoad=0;
-                    while(currentState==STATE.GAME){
-                        if(InputManager.ESCAPE){
-                            currentState=STATE.QUIT;
-                            System.out.println("gone");
-                            break;
+
+                    Thread renderThread=new Thread(()->{
+                        double lastFrame=System.nanoTime()*0.000000001;
+
+                        while(currentState==STATE.GAME){
+                            if(InputManager.ESCAPE){
+                                currentState=STATE.QUIT;
+                                System.out.println("gone");
+                                break;
+                            }
+                            //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
+
+
+                            double deltaTime=System.nanoTime()*0.000000001-lastFrame;
+                            if(deltaTime<0.0016){
+                                continue;
+                            }
+
+                            lastFrame+=deltaTime;
+
+                            gs.frame(deltaTime);
                         }
-                        //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
+                    });
 
-                        if(System.nanoTime()*0.000000001-lastChunkLoad>0.05){
-                            gs.frame(0,true);
-                            lastChunkLoad=System.nanoTime()*0.000000001;
-                            continue;
+                    Thread physicsThread=new Thread(()->{
+                        double lastPhysicsFrame=System.nanoTime()*0.000000001;
+                        double lastChunkLoad=0;
+                        while(currentState==STATE.GAME){
+                            if(InputManager.ESCAPE){
+                                currentState=STATE.QUIT;
+                                System.out.println("gone2");
+                                break;
+                            }
+
+                            if(System.nanoTime()*0.000000001-lastChunkLoad>0.05){
+                                gs.physicsFrame(0,true);
+                                lastChunkLoad=System.nanoTime()*0.000000001;
+                                continue;
+                            }
+
+                            double deltaTime=System.nanoTime()*0.000000001-lastPhysicsFrame;
+                            if(deltaTime<0.016){
+                                continue;
+                            }
+
+                            lastPhysicsFrame+=deltaTime;
+
+                            gs.physicsFrame(deltaTime,false);
                         }
+                    });
 
-                        double deltaTime=System.nanoTime()*0.000000001-lastFrame;
-                        if(deltaTime<0.0016){
-                            continue;
-                        }
+                    renderThread.start();
+                    physicsThread.start();
 
-                        lastFrame+=deltaTime;
-
-                        gs.frame(deltaTime,false);
+                    try{
+                        renderThread.join();
+                        physicsThread.join();
                     }
+                    catch(InterruptedException ie){
+                        System.err.println("something wong with the gaym thredz");
+                        System.exit(-420);
+                    }
+
                     break;
             }
         }

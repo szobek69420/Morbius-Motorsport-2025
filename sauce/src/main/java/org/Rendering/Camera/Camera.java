@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=50;
-    public static final float FOG_START=30;
-    public static final float ONE_PER_FOG_LENGTH=0.05f;
+    public static final float RENDER_DISTANCE=30;
+    public static final float FOG_START=20;
+    public static final float ONE_PER_FOG_LENGTH=0.1f;
 
     public static final Color CLEAR_COLOR=new Color(0,170,250);
     public static final int CLEAR_COLOR_INT=CLEAR_COLOR.getRGB();
@@ -75,46 +75,30 @@ public class Camera {
     }
 
 
-    public void render(BufferedImage image, float[][] depthBuffer){
+    public void render(BufferedImage image, float[][] depthBuffer) {
         calculateOrientation();
 
-        int length=drawables.size();
-
-        int[] indices=new int[length];
-        float[] sqrDistances=new float[length];
-
-        //calculating distance
-        for(int i=0;i<length;i++){
-            indices[i]=i;
-            Vector3 temp=Vector3.difference(drawables.get(i).getPositionByReference(),this.pos);
-
-            sqrDistances[i]=Vector3.sqrMagnitude(temp);
-        }
-
-        //sorting
-        for(int i=0;i<length;i++){
-            for(int j=0;j<length-1;j++){
-                if(sqrDistances[j]<sqrDistances[j+1]){
-
-                    float temp=sqrDistances[j];
-                    sqrDistances[j]=sqrDistances[j+1];
-                    sqrDistances[j+1]=temp;
-
-                    int temp2=indices[j];
-                    indices[j]=indices[j+1];
-                    indices[j+1]=temp2;
-                }
-            }
-        }
-
-
-        for(int i=0;i<length;i++)
+        ArrayList<Thread> renderThreads=new ArrayList<>();
+        for(int i=drawables.size()-1;i>0;i--)
         {
-            if(indices[i]>=drawables.size())
-                continue;
-
-            drawables.get(indices[i]).render(image,depthBuffer,this);
+            final int index=i;
+            Thread t=new Thread(()->{
+                drawables.get(index).render(image,depthBuffer,this);
+            });
+            renderThreads.add(t);
+            t.start();
         }
+
+        try{
+            for(Thread thread : renderThreads)
+                thread.join();
+        }
+        catch(InterruptedException ie){
+            System.err.println("something wong with the threads");
+            System.exit(-69);
+        }
+
+        drawables.get(0).render(image,depthBuffer,this);
     }
 
     /**

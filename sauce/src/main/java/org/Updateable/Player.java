@@ -247,4 +247,15 @@ public class Player implements Updateable{
         Camera.main.setPitch(0);
         Camera.main.setYaw(0);
     }
+
+    public boolean isBlockInPlayer(Vector3 block){
+        if(
+                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>0.75f&&
+                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>1.4f&&
+                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>0.75f
+        )
+            return false;
+
+        return true;
+    }
 }

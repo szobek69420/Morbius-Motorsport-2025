@@ -211,7 +211,7 @@ public class Chunk extends Drawable {
                     }
 
                     //+-y
-                    if(y==0||blocks[y-1][x][z]==BlockTypes.AIR){
+                    if(y!=0&&blocks[y-1][x][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
                                 new Vector3(x - 0.5f, y - 0.5f, z - 0.5f),
