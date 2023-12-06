@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ChunkManager {
-    public static final int CHUNK_RENDER_DISTANCE=3;
+    public static final int CHUNK_RENDER_DISTANCE=2;
 
     private List<Chunk> loadedChunks;
 

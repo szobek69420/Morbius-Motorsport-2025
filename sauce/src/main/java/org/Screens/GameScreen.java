@@ -220,7 +220,7 @@ public class GameScreen extends JPanel {
             depthBuffer=new float[this.width][this.height];
             for(int i=0;i<width;i++){
                 for(int j=0;j<height;j++)
-                    depthBuffer[i][j]=100;
+                    depthBuffer[i][j]=Camera.RENDER_DISTANCE;
             }
         }
 

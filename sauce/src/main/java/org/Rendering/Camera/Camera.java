@@ -14,9 +14,9 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=50;
-    public static final float FOG_START=30;
-    public static final float ONE_PER_FOG_LENGTH=0.05f;
+    public static final float RENDER_DISTANCE=25;
+    public static final float FOG_START=15;
+    public static final float ONE_PER_FOG_LENGTH=0.1f;
 
     public static final Color CLEAR_COLOR=new Color(0,170,250);
     public static final int CLEAR_COLOR_INT=CLEAR_COLOR.getRGB();
@@ -78,42 +78,9 @@ public class Camera {
     public void render(BufferedImage image, float[][] depthBuffer){
         calculateOrientation();
 
-        int length=drawables.size();
-
-        int[] indices=new int[length];
-        float[] sqrDistances=new float[length];
-
-        //calculating distance
-        for(int i=0;i<length;i++){
-            indices[i]=i;
-            Vector3 temp=Vector3.difference(drawables.get(i).getPositionByReference(),this.pos);
-
-            sqrDistances[i]=Vector3.sqrMagnitude(temp);
-        }
-
-        //sorting
-        for(int i=0;i<length;i++){
-            for(int j=0;j<length-1;j++){
-                if(sqrDistances[j]<sqrDistances[j+1]){
-
-                    float temp=sqrDistances[j];
-                    sqrDistances[j]=sqrDistances[j+1];
-                    sqrDistances[j+1]=temp;
-
-                    int temp2=indices[j];
-                    indices[j]=indices[j+1];
-                    indices[j+1]=temp2;
-                }
-            }
-        }
-
-
-        for(int i=0;i<length;i++)
+        for(int i=drawables.size()-1;i>=0;i--)
         {
-            if(indices[i]>=drawables.size())
-                continue;
-
-            drawables.get(indices[i]).render(image,depthBuffer,this);
+            drawables.get(i).render(image,depthBuffer,this);
         }
     }
 

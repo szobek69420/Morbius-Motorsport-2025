@@ -24,12 +24,18 @@ public class MainFrame extends JFrame {
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
 
+    public static int FRAME_BUFFER_WIDTH;
+    public static int FRAME_BUFFER_HEIGHT;
+
     public MainFrame(String name){
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         SCREEN_WIDTH=(int)screenSize.getWidth();
         SCREEN_HEIGHT=(int)screenSize.getHeight();
+
+        FRAME_BUFFER_WIDTH=SCREEN_WIDTH;
+        FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT;
 
         this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
 
