@@ -74,7 +74,7 @@ public class MainFrame extends JFrame {
 
 
                             double deltaTime=System.nanoTime()*0.000000001-lastFrame;
-                            if(deltaTime<0.03){
+                            if(deltaTime<0.05){
                                 continue;
                             }
 

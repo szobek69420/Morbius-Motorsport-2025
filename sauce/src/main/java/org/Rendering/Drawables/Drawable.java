@@ -271,11 +271,12 @@ public abstract class Drawable {
     }
 
     private void drawTriangle(int[] x,int[] y, float[] z,BufferedImage image, float[][] depthBuffer,int colorARGB){
+
         int temp;
         float tempf;
 
-        /*if(z[0]>Camera.RENDER_DISTANCE&&z[1]>Camera.RENDER_DISTANCE&&z[2]>Camera.RENDER_DISTANCE)
-            return;*/
+        if(z[0]>Camera.RENDER_DISTANCE&&z[1]>Camera.RENDER_DISTANCE&&z[2]>Camera.RENDER_DISTANCE)
+            return;
 
         //sort
         {
@@ -355,6 +356,9 @@ public abstract class Drawable {
         float ziterator;
         float deltaZiterator;
 
+        int startX, endX;
+        int ziteratorOffset=0;//ha minY<0, akkor a ziteratort leptetni kell
+
         //elso egyenes
         if(x[0]!=x[1]){
             currentY1=y[0]+0.51f;
@@ -375,27 +379,46 @@ public abstract class Drawable {
                 deltaZ1=(z[2]-z[0])/(float)(x[2]-x[0]);
             }
 
-            for(int i=x[0];i<=x[1]&&i<MainFrame.FRAME_BUFFER_WIDTH;i++){
+            startX=x[0];
+            endX=x[1];
+            if(startX<0){
+                currentY1-=startX*deltaY1;
+                currentY2-=startX*deltaY2;
+                startX=0;
+            }
+            if(endX>=MainFrame.FRAME_BUFFER_WIDTH){
+                endX=MainFrame.FRAME_BUFFER_WIDTH-1;
+            }
 
-                if(i>=0){
-                    minY=(int)currentY1;
-                    maxY=(int)currentY2;
+            for(int i=startX;i<=endX;i++){
 
+                minY=(int)currentY1;
+                if(minY>= MainFrame.FRAME_BUFFER_HEIGHT)
+                    minY=MainFrame.FRAME_BUFFER_HEIGHT-1;
+                else if(minY<0){
+                    ziteratorOffset=-minY;
+                    minY=0;
+                }
 
-                    ziterator=currentZ1;
-                    deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
-                    for(;minY<=maxY&&minY<MainFrame.FRAME_BUFFER_HEIGHT;minY++){
-                        if(minY>=0){
-                            if(ziterator<depthBuffer[i][minY]){
-                                depthBuffer[i][minY]=ziterator;
-                                if(ziterator>Camera.FOG_START)
-                                    image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
-                                else
-                                    image.setRGB(i,minY,colorARGB);
-                            }
-                        }
-                        ziterator+=deltaZiterator;
+                maxY=(int)currentY2;
+                if(maxY>= MainFrame.FRAME_BUFFER_HEIGHT)
+                    maxY=MainFrame.FRAME_BUFFER_HEIGHT-1;
+                else if(maxY<0)
+                    maxY=0;
+
+                ziterator=currentZ1;
+                deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
+                ziterator+=ziteratorOffset*deltaZiterator;
+
+                for(;minY<=maxY;minY++){
+                    if(ziterator<depthBuffer[i][minY]){
+                        depthBuffer[i][minY]=ziterator;
+                        if(ziterator>Camera.FOG_START)
+                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        else
+                            image.setRGB(i,minY,colorARGB);
                     }
+                    ziterator+=deltaZiterator;
                 }
 
                 currentY1+=deltaY1;
@@ -429,27 +452,46 @@ public abstract class Drawable {
                 deltaZ1=(z[2]-z[0])/(float)(x[2]-x[0]);
             }
 
-            for(int i=x[1];i<=x[2]&&i<MainFrame.FRAME_BUFFER_WIDTH;i++){
+            startX=x[1];
+            endX=x[2];
+            if(startX<0){
+                currentY1-=startX*deltaY1;
+                currentY2-=startX*deltaY2;
+                startX=0;
+            }
+            if(endX>=MainFrame.FRAME_BUFFER_WIDTH){
+                endX=MainFrame.FRAME_BUFFER_WIDTH-1;
+            }
 
-                if(i>=0){
-                    minY=(int)currentY1;
-                    maxY=(int)currentY2;
+            for(int i=startX;i<=endX;i++){
 
+                minY=(int)currentY1;
+                if(minY>= MainFrame.FRAME_BUFFER_HEIGHT)
+                    minY=MainFrame.FRAME_BUFFER_HEIGHT-1;
+                else if(minY<0){
+                    ziteratorOffset=-minY;
+                    minY=0;
+                }
 
-                    ziterator=currentZ1;
-                    deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
-                    for(;minY<=maxY&&minY<MainFrame.FRAME_BUFFER_HEIGHT;minY++){
-                        if(minY>=0){
-                            if(ziterator<depthBuffer[i][minY]){
-                                depthBuffer[i][minY]=ziterator;
-                                if(ziterator>Camera.FOG_START)
-                                    image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
-                                else
-                                    image.setRGB(i,minY,colorARGB);
-                            }
-                        }
-                        ziterator+=deltaZiterator;
+                maxY=(int)currentY2;
+                if(maxY>= MainFrame.FRAME_BUFFER_HEIGHT)
+                    maxY=MainFrame.FRAME_BUFFER_HEIGHT-1;
+                else if(maxY<0)
+                    maxY=0;
+
+                ziterator=currentZ1;
+                deltaZiterator=(currentZ2-currentZ1)/(maxY-minY);
+                ziterator+=ziteratorOffset*deltaZiterator;
+
+                for(;minY<=maxY;minY++){
+                    if(ziterator<depthBuffer[i][minY]){
+                        depthBuffer[i][minY]=ziterator;
+                        if(ziterator>Camera.FOG_START)
+                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        else
+                            image.setRGB(i,minY,colorARGB);
                     }
+                    ziterator+=deltaZiterator;
                 }
 
                 currentY1+=deltaY1;
