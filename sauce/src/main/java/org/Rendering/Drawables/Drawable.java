@@ -274,6 +274,9 @@ public abstract class Drawable {
         int temp;
         float tempf;
 
+        /*if(z[0]>Camera.RENDER_DISTANCE&&z[1]>Camera.RENDER_DISTANCE&&z[2]>Camera.RENDER_DISTANCE)
+            return;*/
+
         //sort
         {
             if (x[0] > x[2]) {

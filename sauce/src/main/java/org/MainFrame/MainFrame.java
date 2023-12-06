@@ -74,11 +74,13 @@ public class MainFrame extends JFrame {
 
 
                             double deltaTime=System.nanoTime()*0.000000001-lastFrame;
-                            if(deltaTime<0.0016){
+                            if(deltaTime<0.03){
                                 continue;
                             }
 
-                            lastFrame+=deltaTime;
+                            lastFrame=System.nanoTime()*0.000000001;
+                            if(deltaTime>1.0)
+                                System.out.println("render: "+deltaTime);
 
                             gs.frame(deltaTime);
                         }
@@ -105,7 +107,10 @@ public class MainFrame extends JFrame {
                                 continue;
                             }
 
-                            lastPhysicsFrame+=deltaTime;
+                            lastPhysicsFrame=System.nanoTime()*0.000000001;
+
+                            if(deltaTime>0.2)
+                                System.out.println("physics: "+deltaTime);
 
                             gs.physicsFrame(deltaTime,false);
                         }

@@ -3,6 +3,7 @@ package main.java.org.Screens;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 
 import main.java.org.InputManagement.InputManager;
 import main.java.org.LinearAlgebruh.Vector3;
@@ -18,7 +19,6 @@ import main.java.org.World.ChunkManager;
 
 public class GameScreen extends JPanel {
 
-
     private Foreground fg;
     private Background bg;
 
@@ -27,6 +27,7 @@ public class GameScreen extends JPanel {
     private Player player;
 
     private SelectionCube selectionKuba;
+
 
 
     public GameScreen(){
@@ -38,7 +39,7 @@ public class GameScreen extends JPanel {
         bg=new Background();
 
         fg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
-        bg.setBounds(0,0, MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT);
+        bg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
 
         this.add(fg);
         this.add(bg);
@@ -202,8 +203,6 @@ public class GameScreen extends JPanel {
 
     private static class Background extends JPanel{
 
-
-
         private BufferedImage image;
         private Graphics imageGraphics;
         private float[][] depthBuffer;
@@ -223,7 +222,7 @@ public class GameScreen extends JPanel {
             depthBuffer=new float[MainFrame.FRAME_BUFFER_WIDTH][MainFrame.FRAME_BUFFER_HEIGHT];
             for(int i=0;i<MainFrame.FRAME_BUFFER_WIDTH;i++){
                 for(int j=0;j<MainFrame.FRAME_BUFFER_HEIGHT;j++)
-                    depthBuffer[i][j]=100;
+                    depthBuffer[i][j]=Camera.RENDER_DISTANCE;
             }
         }
 
@@ -246,7 +245,7 @@ public class GameScreen extends JPanel {
             imageGraphics.setColor(Color.black);
             imageGraphics.drawString("Press ESC to quit",10,20);
 
-            g.drawImage(image,0,0,MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT,this);
+            g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
         }
 
         private void clearBuffers(){
@@ -265,4 +264,5 @@ public class GameScreen extends JPanel {
             }
         }
     }
+
 }

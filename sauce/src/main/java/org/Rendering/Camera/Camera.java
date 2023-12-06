@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=30;
-    public static final float FOG_START=20;
+    public static final float RENDER_DISTANCE=20;
+    public static final float FOG_START=10;
     public static final float ONE_PER_FOG_LENGTH=0.1f;
 
     public static final Color CLEAR_COLOR=new Color(0,170,250);
@@ -79,7 +79,7 @@ public class Camera {
         calculateOrientation();
 
         ArrayList<Thread> renderThreads=new ArrayList<>();
-        for(int i=drawables.size()-1;i>0;i--)
+        /*for(int i=drawables.size()-1;i>0;i--)
         {
             final int index=i;
             Thread t=new Thread(()->{
@@ -96,6 +96,10 @@ public class Camera {
         catch(InterruptedException ie){
             System.err.println("something wong with the threads");
             System.exit(-69);
+        }*/
+        for(int i=drawables.size()-1;i>0;i--)
+        {
+            drawables.get(i).render(image,depthBuffer,this);
         }
 
         drawables.get(0).render(image,depthBuffer,this);
