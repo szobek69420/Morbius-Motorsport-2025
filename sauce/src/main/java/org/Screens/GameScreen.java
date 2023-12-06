@@ -253,7 +253,7 @@ public class GameScreen extends JPanel {
 
             clearDepthBuffer(renderDistance);
 
-            imageGraphics.setColor(Camera.CLEAR_COLOR);
+            imageGraphics.setColor(new Color(Camera.CLEAR_COLOR.getRed(),Camera.CLEAR_COLOR.getGreen(),Camera.CLEAR_COLOR.getBlue(),200));
             imageGraphics.fillRect(0,0,MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
         }
 

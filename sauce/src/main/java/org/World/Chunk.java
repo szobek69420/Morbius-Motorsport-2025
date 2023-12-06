@@ -210,7 +210,7 @@ public class Chunk extends Drawable {
                         shouldHaveCollider=true;
                     }
 
-                    //+-y
+                    //-y
                     if(y!=0&&blocks[y-1][x][z]==BlockTypes.AIR){
                         vertices.addAll(List.of(new Vector3[]{
                                 new Vector3(x + 0.5f, y - 0.5f, z - 0.5f),
@@ -231,6 +231,121 @@ public class Chunk extends Drawable {
                     if(shouldHaveCollider)
                         cd.addAABB(new AABB(new Vector3(basedX+x,y,basedZ+z),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
                 }
+            }
+        }
+
+        //neighbouring changed blocks
+        List<ChangedBlock> changed;
+
+        //-z
+        changed=changedBlocks.get(new ChangedBlockKey(chunkX, chunkZ-1));
+        if(changed!=null){
+            for(ChangedBlock cbt : changed) {
+                if(cbt.z!=15)
+                    continue;
+
+                if(blocks[cbt.y][cbt.x][0]==BlockTypes.AIR)
+                    continue;
+
+                vertices.addAll(List.of(new Vector3[]{
+                        new Vector3(cbt.x - 0.5f, cbt.y - 0.5f, -0.5f),
+                        new Vector3(cbt.x + 0.5f, cbt.y - 0.5f, -0.5f),
+                        new Vector3(cbt.x + 0.5f, cbt.y + 0.5f, -0.5f),
+                        new Vector3(cbt.x - 0.5f, cbt.y + 0.5f, -0.5f),
+                }));
+                indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
+                faceColours.addAll(List.of(new Color[]{
+                        BlockColours.blockColours[6*blocks[cbt.y][cbt.x][0].ordinal()],
+                        BlockColours.blockColours[6*blocks[cbt.y][cbt.x][0].ordinal()]
+                }));
+
+                indexBase+=4;
+
+                cd.addAABB(new AABB(new Vector3(basedX+cbt.x,cbt.y,basedZ),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
+            }
+        }
+
+        //-x
+        changed=changedBlocks.get(new ChangedBlockKey(chunkX-1, chunkZ));
+        if(changed!=null){
+            for(ChangedBlock cbt : changed) {
+                if(cbt.x!=15)
+                    continue;
+
+                if(blocks[cbt.y][0][cbt.z]==BlockTypes.AIR)
+                    continue;
+
+                vertices.addAll(List.of(new Vector3[]{
+                        new Vector3(-0.5f, cbt.y - 0.5f, cbt.z - 0.5f),
+                        new Vector3(-0.5f, cbt.y + 0.5f, cbt.z - 0.5f),
+                        new Vector3(-0.5f, cbt.y + 0.5f, cbt.z + 0.5f),
+                        new Vector3(-0.5f, cbt.y - 0.5f, cbt.z + 0.5f),
+                }));
+                indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
+                faceColours.addAll(List.of(new Color[]{
+                        BlockColours.blockColours[6*blocks[cbt.y][0][cbt.z].ordinal()+1],
+                        BlockColours.blockColours[6*blocks[cbt.y][0][cbt.z].ordinal()+1]
+                }));
+
+                indexBase+=4;
+
+                cd.addAABB(new AABB(new Vector3(basedX,cbt.y,basedZ+cbt.z),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
+            }
+        }
+
+        //+z
+        changed=changedBlocks.get(new ChangedBlockKey(chunkX, chunkZ+1));
+        if(changed!=null){
+            for(ChangedBlock cbt : changed) {
+                if(cbt.z!=0)
+                    continue;
+
+                if(blocks[cbt.y][cbt.x][15]==BlockTypes.AIR)
+                    continue;
+
+                vertices.addAll(List.of(new Vector3[]{
+                        new Vector3(cbt.x + 0.5f, cbt.y - 0.5f, 15.5f),
+                        new Vector3(cbt.x - 0.5f, cbt.y - 0.5f, 15.5f),
+                        new Vector3(cbt.x - 0.5f, cbt.y + 0.5f, 15.5f),
+                        new Vector3(cbt.x + 0.5f, cbt.y + 0.5f, 15.5f),
+                }));
+                indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
+                faceColours.addAll(List.of(new Color[]{
+                        BlockColours.blockColours[6*blocks[cbt.y][cbt.x][15].ordinal()+2],
+                        BlockColours.blockColours[6*blocks[cbt.y][cbt.x][15].ordinal()+2]
+                }));
+
+                indexBase+=4;
+
+                cd.addAABB(new AABB(new Vector3(basedX+cbt.x,cbt.y,basedZ+15),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
+            }
+        }
+
+        //+x
+        changed=changedBlocks.get(new ChangedBlockKey(chunkX+1, chunkZ));
+        if(changed!=null){
+            for(ChangedBlock cbt : changed) {
+                if(cbt.x!=0)
+                    continue;
+
+                if(blocks[cbt.y][15][cbt.z]==BlockTypes.AIR)
+                    continue;
+
+                vertices.addAll(List.of(new Vector3[]{
+                        new Vector3(15.5f, cbt.y - 0.5f, cbt.z + 0.5f),
+                        new Vector3(15.5f, cbt.y + 0.5f, cbt.z + 0.5f),
+                        new Vector3(15.5f, cbt.y + 0.5f, cbt.z - 0.5f),
+                        new Vector3(15.5f, cbt.y - 0.5f, cbt.z - 0.5f),
+                }));
+                indices.addAll(List.of(new Integer[]{indexBase,indexBase+2,indexBase+1,indexBase+3,indexBase+2,indexBase}));
+                faceColours.addAll(List.of(new Color[]{
+                        BlockColours.blockColours[6*blocks[cbt.y][15][cbt.z].ordinal()+3],
+                        BlockColours.blockColours[6*blocks[cbt.y][15][cbt.z].ordinal()+3]
+                }));
+
+                indexBase+=4;
+
+                cd.addAABB(new AABB(new Vector3(basedX+15,cbt.y,basedZ+cbt.z),new Vector3(0.5f,0.5f,0.5f),true,"amogus"));
             }
         }
 

@@ -250,9 +250,9 @@ public class Player implements Updateable{
 
     public boolean isBlockInPlayer(Vector3 block){
         if(
-                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>0.75f&&
-                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>1.4f&&
-                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>0.75f
+                        Math.abs(block.get(0)-aabb.getPositionByReference().get(0))>0.75f||
+                        Math.abs(block.get(1)-aabb.getPositionByReference().get(1))>1.4f||
+                        Math.abs(block.get(2)-aabb.getPositionByReference().get(2))>0.75f
         )
             return false;
 
