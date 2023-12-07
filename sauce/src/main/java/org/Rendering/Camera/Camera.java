@@ -79,24 +79,7 @@ public class Camera {
         calculateOrientation();
 
         ArrayList<Thread> renderThreads=new ArrayList<>();
-        /*for(int i=drawables.size()-1;i>0;i--)
-        {
-            final int index=i;
-            Thread t=new Thread(()->{
-                drawables.get(index).render(image,depthBuffer,this);
-            });
-            renderThreads.add(t);
-            t.start();
-        }
 
-        try{
-            for(Thread thread : renderThreads)
-                thread.join();
-        }
-        catch(InterruptedException ie){
-            System.err.println("something wong with the threads");
-            System.exit(-69);
-        }*/
         for(int i=drawables.size()-1;i>0;i--)
         {
             drawables.get(i).render(image,depthBuffer,this);
@@ -123,6 +106,32 @@ public class Camera {
         viewMatrix=new Matrix3(left,up,forward);
         Matrix3.transpose(viewMatrix);
 
+    }
+
+    public void sortDrawables(){
+        final int length=drawables.size();
+
+        float[] distance = new float[length];
+
+        for(int i=0;i<length;i++){
+            distance[i]=Vector3.sqrMagnitude(Vector3.difference(drawables.get(i).getPositionByReference(),pos));
+        }
+
+        float temp;
+        Drawable temp2;
+        for(int i=0;i<length;i++){
+            for(int j=0;j<length-i-1;j++){
+                if(distance[j]>distance[j+1]){
+                    temp=distance[j];
+                    distance[j]=distance[j+1];
+                    distance[j+1]=temp;
+
+                    temp2=drawables.get(j);
+                    drawables.set(j,drawables.get(j+1));
+                    drawables.set(j+1,temp2);
+                }
+            }
+        }
     }
 
     /**

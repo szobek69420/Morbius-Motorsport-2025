@@ -49,6 +49,14 @@ public class CollisionDetection {
             nonKinematic.remove(aabb);
     }
 
+    public void clear(boolean onlyKinematic){
+        kinematic.clear();
+
+        if(!onlyKinematic){
+            nonKinematic.clear();
+        }
+    }
+
     /**
      * Simuliert die Bewegung der Körper.
      * Überprüft, dass es keinen solchen Collider gibt, die mit einem anderen Collider überlappen.

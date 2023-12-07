@@ -32,11 +32,21 @@ public class Chunk extends Drawable {
         this.pos=new Vector3(chunkX*16,0,chunkZ*16);
         this.scale=new Vector3(1,1,1);
 
-        int basedX=chunkX*16;
-        int basedZ=chunkZ*16;
-
         cd=new CollisionDetection();
         player.addToPhysics(cd);
+
+        this.regenerateChunk(changedBlocks);
+
+        calculateModelMatrix();
+
+        this.setName("amogus");
+    }
+
+    public void regenerateChunk(Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks){
+        this.cd.clear(true);
+
+        int basedX=chunkX*16;
+        int basedZ=chunkZ*16;
 
         blocks=new BlockTypes[50][16][16];
 
@@ -364,10 +374,6 @@ public class Chunk extends Drawable {
         this.faceColors=new Color[length];
         for(int i=0;i<length;i++)
             this.faceColors[i]=faceColours.get(i);
-
-        calculateModelMatrix();
-
-        this.setName("amogus");
     }
 
     public void calculatePhysics(double deltaTime){

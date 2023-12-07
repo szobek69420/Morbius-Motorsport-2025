@@ -5,15 +5,14 @@ import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Updateable.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChunkManager {
     public static final int CHUNK_RENDER_DISTANCE=1;
 
     private List<Chunk> loadedChunks;
+    private List<ChunkUpdate> pendingUpdates;
+
 
     private Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks;
 
@@ -21,6 +20,7 @@ public class ChunkManager {
     public ChunkManager(){
         loadedChunks=new ArrayList<>();
         changedBlocks=new HashMap<>();
+        pendingUpdates=new ArrayList<ChunkUpdate>();
     }
 
     public void loadChunk(int playerChunkX, int playerChunkZ, Player player){
@@ -32,17 +32,7 @@ public class ChunkManager {
                     }
 
                     if(!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
-                        if(!changedBlocks.containsKey(new ChangedBlockKey(playerChunkX+j,playerChunkZ+k))){
-
-                            ChangedBlockKey cbt=new ChangedBlockKey(playerChunkX+j,playerChunkZ+k);
-                            changedBlocks.put(cbt, new ArrayList<>());
-                        }
-
-                        Chunk chomk=new Chunk(playerChunkX+j,playerChunkZ+k, player, changedBlocks);
-                        loadedChunks.add(chomk);
-                        Camera.main.addDrawable(chomk);
-
-                        System.out.println("chunk "+(playerChunkX+j)+" "+(playerChunkZ+k+" loaded"));
+                        pendingUpdates.add(new ChunkUpdate(playerChunkX+j,playerChunkZ+k, ChunkUpdate.Type.LOAD,null));
                         return;
                     }
                 }
@@ -58,22 +48,38 @@ public class ChunkManager {
         changedBlocks.get(cbt).add(new ChangedBlock(block, x, y, z));
     }
 
-    public void reloadChunk(int chunkX, int chunkZ,Player player){
-        boolean containsChunk=false;
-
-        for(Chunk chomk :loadedChunks){
-            if(chomk.chunkX==chunkX&&chomk.chunkZ==chunkZ){
-                Camera.main.removeDrawable(chomk);
-                loadedChunks.remove(chomk);
-                containsChunk=true;
-                break;
-            }
+    public void reloadChunk(Chunk chomk){
+        if(isChunkLoaded(chomk.chunkX,chomk.chunkZ)){
+            pendingUpdates.add(0,new ChunkUpdate(-69,-69, ChunkUpdate.Type.RELOAD,chomk));
         }
+    }
 
-        if(containsChunk){
-            Chunk chomk=new Chunk(chunkX,chunkZ,player,changedBlocks);
-            Camera.main.addDrawable(chomk);
-            loadedChunks.add(chomk);
+    public void updateChunks(Player player){
+        if(!pendingUpdates.isEmpty()){
+            ChunkUpdate cu=pendingUpdates.get(0);
+            pendingUpdates.remove(0);
+            switch(cu.type){
+                case LOAD -> {
+                    //load if it was not
+                    if(!changedBlocks.containsKey(new ChangedBlockKey(cu.chunkX,cu.chunkZ))){
+                        ChangedBlockKey cbt=new ChangedBlockKey(cu.chunkX,cu.chunkZ);
+                        changedBlocks.put(cbt, new ArrayList<>());
+                    }
+
+                    Chunk chomk=new Chunk(cu.chunkX,cu.chunkZ, player, changedBlocks);
+                    loadedChunks.add(chomk);
+                    Camera.main.addDrawable(chomk);
+                }
+                case UNLOAD -> {
+                    Camera.main.removeDrawable(cu.chunk);
+                    loadedChunks.remove(cu.chunk);
+                }
+                case RELOAD -> {
+                    Camera.main.removeDrawable(cu.chunk);
+                    cu.chunk.regenerateChunk(changedBlocks);
+                    Camera.main.addDrawable(cu.chunk);
+                }
+            }
         }
     }
 
@@ -89,8 +95,7 @@ public class ChunkManager {
     public void unloadChunk(int playerChunkX, int playerChunkZ){
         for(Chunk chomk : loadedChunks){
             if(Math.abs(playerChunkX-chomk.chunkX)>CHUNK_RENDER_DISTANCE||Math.abs(playerChunkZ-chomk.chunkZ)>CHUNK_RENDER_DISTANCE){
-                Camera.main.removeDrawable(chomk);
-                loadedChunks.remove(chomk);
+                pendingUpdates.add(new ChunkUpdate(-69,-69, ChunkUpdate.Type.UNLOAD,chomk));
                 break;
             }
         }
@@ -127,6 +132,15 @@ public class ChunkManager {
         return null;
     }
 
+    public Chunk getChunkAtPos(int chunkX, int chunkZ){
+        for(Chunk chomk : loadedChunks){
+            if(chomk.chunkX==chunkX&&chomk.chunkZ==chunkZ)
+                return chomk;
+        }
+
+        return null;
+    }
+
     public static int[] getChunk(Vector3 pos){
         int[] chunkPos=new int[2];
 
@@ -145,5 +159,26 @@ public class ChunkManager {
         }
 
         return chunkPos;
+    }
+
+    public static class ChunkUpdate{
+
+        public static enum Type{
+            LOAD,
+            UNLOAD,
+            RELOAD
+        };
+
+        public final int chunkX;
+        public final int chunkZ;
+        public final Chunk chunk;
+        public final Type type;
+
+        public ChunkUpdate(int chunkX, int chunkZ,Type type,Chunk chunk){
+            this.chunkX=chunkX;
+            this.chunkZ=chunkZ;
+            this.type=type;
+            this.chunk=chunk;
+        }
     }
 }

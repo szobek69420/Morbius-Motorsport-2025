@@ -89,6 +89,11 @@ public class GameScreen extends JPanel {
         if(chunkLoad){
             this.chunkManager.unloadChunk(chunkPos[0],chunkPos[1]);
             this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
+            this.chunkManager.updateChunks(player);
+            Vector3 tempVector69=selectionKuba.getPositionByReference().copy();
+            selectionKuba.setPosition(Vector3.zero);
+            Camera.main.sortDrawables();
+            selectionKuba.setPosition(tempVector69);
             return;
         }
 
@@ -107,7 +112,32 @@ public class GameScreen extends JPanel {
             if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.1){
                 lastBlockBreak=0;
                 chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.AIR);
-                chunkManager.reloadChunk(rh.chunkX,rh.chunkZ,player);
+                Chunk chomk;
+
+                if(rh.x==0){
+                    chomk=this.chunkManager.getChunkAtPos(rh.chunkX-1,rh.chunkZ);
+                    if(chomk!=null)
+                        chunkManager.reloadChunk(chomk);
+                }
+                if(rh.x==15){
+                    chomk=this.chunkManager.getChunkAtPos(rh.chunkX+1,rh.chunkZ);
+                    if(chomk!=null)
+                        chunkManager.reloadChunk(chomk);
+                }
+                if(rh.z==0){
+                    chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ-1);
+                    if(chomk!=null)
+                        chunkManager.reloadChunk(chomk);
+                }
+                if(rh.z==15){
+                    chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ+1);
+                    if(chomk!=null)
+                        chunkManager.reloadChunk(chomk);
+                }
+
+                chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ);
+                if(chomk!=null)
+                    chunkManager.reloadChunk(chomk);
             }
             else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.2){
                 lastBlockPlace=0;
@@ -181,7 +211,9 @@ public class GameScreen extends JPanel {
 
                 if(!player.isBlockInPlayer(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z))){
                     chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.YELLOW);
-                    chunkManager.reloadChunk(rh.chunkX,rh.chunkZ,player);
+                    Chunk chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ);
+                    if(chomk!=null)
+                        chunkManager.reloadChunk(chomk);
                 }
             }
         }
