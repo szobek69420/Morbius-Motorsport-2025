@@ -67,7 +67,7 @@ public class Vector3{
      */
     @Override
     public String toString(){
-        return "("+value[0]+"; "+value[1]+"; "+value[2]+")";
+        return value[0]+", "+value[1]+", "+value[2];
     }
 
     //static

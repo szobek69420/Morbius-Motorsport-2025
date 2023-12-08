@@ -31,12 +31,13 @@ public class MainFrame extends JFrame {
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        SCREEN_WIDTH=(int)screenSize.getWidth();
-        SCREEN_HEIGHT=(int)screenSize.getHeight();
+        SCREEN_WIDTH=(int)screenSize.getWidth()-100;
+        SCREEN_HEIGHT=(int)screenSize.getHeight()-100;
 
         FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
         FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
 
+        this.setResizable(false);
         this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
 
         this.setLayout(new GridLayout(1,1));
@@ -74,7 +75,7 @@ public class MainFrame extends JFrame {
 
 
                             double deltaTime=System.nanoTime()*0.000000001-lastFrame;
-                            if(deltaTime<0.016){
+                            if(deltaTime<0.0167){
                                 continue;
                             }
 

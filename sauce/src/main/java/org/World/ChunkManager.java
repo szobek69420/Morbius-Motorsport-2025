@@ -8,13 +8,17 @@ import main.java.org.Updateable.Player;
 import java.util.*;
 
 public class ChunkManager {
-    public static final int CHUNK_RENDER_DISTANCE=1;
+    public static final int CHUNK_RENDER_DISTANCE=8;
 
     private List<Chunk> loadedChunks;
     private List<ChunkUpdate> pendingUpdates;
 
 
     private Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks;
+
+    private int chunkUpdates=0;
+    public int getChunkUpdates(){return chunkUpdates;}
+    public void setChunkUpdates(int chunkUpdates){this.chunkUpdates=chunkUpdates;}
 
 
     public ChunkManager(){
@@ -59,7 +63,7 @@ public class ChunkManager {
             }
 
             if(shouldChunkBeAdded)
-                pendingUpdates.add(0,new ChunkUpdate(-69,-69, ChunkUpdate.Type.RELOAD,chomk));
+                pendingUpdates.add(0,new ChunkUpdate(chomk.chunkX,chomk.chunkZ, ChunkUpdate.Type.RELOAD,chomk));
         }
     }
 
@@ -84,11 +88,17 @@ public class ChunkManager {
                     loadedChunks.remove(cu.chunk);
                 }
                 case RELOAD -> {
+                    //nem eleg meghivni a regenerate-et, mert ha render kozben irja felul, az szivas
+                    //cu.chunk.regenerateChunk(changedBlocks);
+                    Chunk reloaded=new Chunk(cu.chunkX,cu.chunkZ,player,changedBlocks);
                     Camera.main.removeDrawable(cu.chunk);
-                    cu.chunk.regenerateChunk(changedBlocks);
-                    Camera.main.addDrawable(cu.chunk);
+
+                    loadedChunks.set(loadedChunks.indexOf(cu.chunk),reloaded);
+                    Camera.main.addDrawable(reloaded);
                 }
             }
+
+            chunkUpdates++;
         }
     }
 
@@ -113,8 +123,10 @@ public class ChunkManager {
     public void unloadChunk(int playerChunkX, int playerChunkZ){
         for(Chunk chomk : loadedChunks){
             if(Math.abs(playerChunkX-chomk.chunkX)>CHUNK_RENDER_DISTANCE||Math.abs(playerChunkZ-chomk.chunkZ)>CHUNK_RENDER_DISTANCE){
-                pendingUpdates.add(new ChunkUpdate(-69,-69, ChunkUpdate.Type.UNLOAD,chomk));
-                break;
+                if(!isChunkPending(chomk.chunkX,chomk.chunkZ)&&isChunkLoaded(chomk.chunkX,chomk.chunkZ)){
+                    pendingUpdates.add(new ChunkUpdate(chomk.chunkX,chomk.chunkZ, ChunkUpdate.Type.UNLOAD,chomk));
+                    break;
+                }
             }
         }
     }

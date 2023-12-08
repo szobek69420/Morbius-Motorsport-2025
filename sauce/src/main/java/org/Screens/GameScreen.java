@@ -32,6 +32,8 @@ public class GameScreen extends JPanel {
     public static int getFrameCount(){return lastFrameCount;}
     private static int lastPendingChunks=0;
     public static int getPendingCount(){return lastPendingChunks;}
+    private static int lastChunkUpdates=0;
+    public static int getLastChunkUpdates(){return lastChunkUpdates;}
 
     public GameScreen(){
         super();
@@ -79,12 +81,15 @@ public class GameScreen extends JPanel {
 
         if((System.nanoTime()-lastFrame)*0.000000001>1){
             lastFrameCount=frameCount;
-            lastPendingChunks=this.chunkManager.getPendingCount();
+
+            lastChunkUpdates=this.chunkManager.getChunkUpdates();
+            this.chunkManager.setChunkUpdates(0);
 
             lastFrame=System.nanoTime();
             frameCount=0;
         }
         frameCount++;
+        lastPendingChunks=this.chunkManager.getPendingCount();
     }
 
     public void physicsFrame(double deltaTime, boolean chunkLoad){
@@ -148,7 +153,7 @@ public class GameScreen extends JPanel {
                 if(chomk!=null)
                     chunkManager.reloadChunk(chomk);
             }
-            else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.2){
+            else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.002){
                 lastBlockPlace=0;
                 Vector3 tempDeltaPos=new Vector3(
                         rh.point.get(0)-selectionPosition.get(0),
@@ -286,12 +291,33 @@ public class GameScreen extends JPanel {
                 }
             }
 
-            imageGraphics.setColor(Color.black);
-            imageGraphics.drawString("Press ESC to quit",5,10);
-            String fpsString="FPS: "+GameScreen.getFrameCount();
-            imageGraphics.drawString(fpsString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(fpsString)-10,10);
-            String updateString="Pending: "+GameScreen.getPendingCount();
-            imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,20);
+            //text
+            imageGraphics.setColor(Color.white);
+
+            //left side
+            imageGraphics.drawString("Press ESC to quit",5,MainFrame.FRAME_BUFFER_HEIGHT-25);
+
+            Vector3 pos;
+            float pitch=0,yaw=0;
+            if(Camera.main!=null){
+                pos=Camera.main.getPosition();
+                pos.set(1,pos.get(1)-0.8f);
+                pitch=Camera.main.getPitch();
+                yaw=Camera.main.getYaw();
+            }
+            else
+                pos=Vector3.zero;
+
+            String posString="Pos: "+((int)(pos.get(0)*100))/100.0f +", "+((int)(pos.get(1)*100))/100.0f +", "+((int)(pos.get(2)*100))/100.0f;
+            imageGraphics.drawString(posString,5,10);
+            String lookString="Rot: "+((int)(yaw*100))/100.0f +", "+((int)(pitch*100))/100.0f;
+            imageGraphics.drawString(lookString,5,20);
+
+            //right side
+            String updateString="Updates: "+GameScreen.getLastChunkUpdates();
+            imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,10);
+            String pendingString="Pending: "+GameScreen.getPendingCount();
+            imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
 
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
         }
