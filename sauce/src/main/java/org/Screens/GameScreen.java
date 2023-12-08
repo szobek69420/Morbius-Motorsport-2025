@@ -28,7 +28,10 @@ public class GameScreen extends JPanel {
 
     private SelectionCube selectionKuba;
 
-
+    private static int lastFrameCount=0;
+    public static int getFrameCount(){return lastFrameCount;}
+    private static int lastPendingChunks=0;
+    public static int getPendingCount(){return lastPendingChunks;}
 
     public GameScreen(){
         super();
@@ -75,7 +78,8 @@ public class GameScreen extends JPanel {
         fg.repaint();
 
         if((System.nanoTime()-lastFrame)*0.000000001>1){
-            System.out.println("fps: "+frameCount);
+            lastFrameCount=frameCount;
+            lastPendingChunks=this.chunkManager.getPendingCount();
 
             lastFrame=System.nanoTime();
             frameCount=0;
@@ -102,6 +106,11 @@ public class GameScreen extends JPanel {
         player.update(deltaTime);
         this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
 
+        if(!InputManager.MOUSE_LEFT)
+            lastBlockBreak=69;
+        if(!InputManager.MOUSE_RIGHT)
+            lastBlockPlace=69;
+
         lastBlockBreak+=deltaTime;
         lastBlockPlace+=deltaTime;
         RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
@@ -109,7 +118,7 @@ public class GameScreen extends JPanel {
             Vector3 selectionPosition=new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z);
             selectionKuba.setPosition(selectionPosition);
 
-            if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.1){
+            if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.2){
                 lastBlockBreak=0;
                 chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.AIR);
                 Chunk chomk;
@@ -240,16 +249,19 @@ public class GameScreen extends JPanel {
         private float[][] depthBuffer;
 
         private Font font;
+        private FontMetrics fontMetrics;
 
 
         public Background(){
             this.setBackground(new Color(0,0,0,255));
 
-            this.font=new Font("Arial",Font.PLAIN,20);
+            this.font=new Font("Arial",Font.PLAIN,10);
 
             image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_RGB);
             imageGraphics=image.getGraphics();
             imageGraphics.setFont(font);
+
+            this.fontMetrics= imageGraphics.getFontMetrics();
 
             depthBuffer=new float[MainFrame.FRAME_BUFFER_WIDTH][MainFrame.FRAME_BUFFER_HEIGHT];
             for(int i=0;i<MainFrame.FRAME_BUFFER_WIDTH;i++){
@@ -275,7 +287,11 @@ public class GameScreen extends JPanel {
             }
 
             imageGraphics.setColor(Color.black);
-            imageGraphics.drawString("Press ESC to quit",10,20);
+            imageGraphics.drawString("Press ESC to quit",5,10);
+            String fpsString="FPS: "+GameScreen.getFrameCount();
+            imageGraphics.drawString(fpsString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(fpsString)-10,10);
+            String updateString="Pending: "+GameScreen.getPendingCount();
+            imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,20);
 
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
         }
@@ -285,7 +301,7 @@ public class GameScreen extends JPanel {
 
             clearDepthBuffer(renderDistance);
 
-            imageGraphics.setColor(new Color(Camera.CLEAR_COLOR.getRed(),Camera.CLEAR_COLOR.getGreen(),Camera.CLEAR_COLOR.getBlue(),200));
+            imageGraphics.setColor(new Color(Camera.CLEAR_COLOR.getRed(),Camera.CLEAR_COLOR.getGreen(),Camera.CLEAR_COLOR.getBlue(),255));
             imageGraphics.fillRect(0,0,MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
         }
 

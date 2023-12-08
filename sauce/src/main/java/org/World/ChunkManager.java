@@ -50,7 +50,16 @@ public class ChunkManager {
 
     public void reloadChunk(Chunk chomk){
         if(isChunkLoaded(chomk.chunkX,chomk.chunkZ)){
-            pendingUpdates.add(0,new ChunkUpdate(-69,-69, ChunkUpdate.Type.RELOAD,chomk));
+            boolean shouldChunkBeAdded=true;
+            for(ChunkUpdate cu :pendingUpdates){
+                if(cu.type== ChunkUpdate.Type.RELOAD&&cu.chunkX==chomk.chunkX&&cu.chunkZ==chomk.chunkZ){
+                    shouldChunkBeAdded=false;
+                    break;
+                }
+            }
+
+            if(shouldChunkBeAdded)
+                pendingUpdates.add(0,new ChunkUpdate(-69,-69, ChunkUpdate.Type.RELOAD,chomk));
         }
     }
 
@@ -131,7 +140,7 @@ public class ChunkManager {
             chunkPos=getChunk(pos);
             for(Chunk chomk:loadedChunks){
                 if(chomk.chunkX==chunkPos[0]&&chomk.chunkZ==chunkPos[1]){
-                    rh=chomk.cd.isThereCollider(pos);
+                    rh=chomk.isThereBlock(pos);
                     if(rh!=null)
                         return rh;
                 }
@@ -148,6 +157,10 @@ public class ChunkManager {
         }
 
         return null;
+    }
+
+    public int getPendingCount(){
+        return pendingUpdates.size();
     }
 
     public static int[] getChunk(Vector3 pos){

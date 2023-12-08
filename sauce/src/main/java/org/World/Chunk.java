@@ -4,6 +4,7 @@ import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Noice.OpenSimplex2S;
 import main.java.org.Physics.AABB;
 import main.java.org.Physics.CollisionDetection;
+import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Drawables.Drawable;
 import main.java.org.Updateable.Player;
 import main.java.org.World.BlockColours;
@@ -23,7 +24,7 @@ public class Chunk extends Drawable {
 
     private int[][] heightMap;
 
-    public final CollisionDetection cd;
+    private final CollisionDetection cd;
 
     public Chunk(int chunkX, int chunkZ, Player player, Map<ChangedBlockKey,List<ChangedBlock>> changedBlocks){
         this.chunkX=chunkX;
@@ -378,5 +379,29 @@ public class Chunk extends Drawable {
 
     public void calculatePhysics(double deltaTime){
         cd.CalculatePhysics(deltaTime);
+    }
+
+    public RaycastHit isThereBlock(Vector3 point){
+        int[] chunkPos= ChunkManager.getChunk(point);
+        int[] blockPos=new int[3];
+
+        blockPos[0]=Math.round(point.get(0))-chunkPos[0]*16;
+        blockPos[1]=Math.round(point.get(1));
+        blockPos[2]=Math.round(point.get(2))-chunkPos[1]*16;
+
+        if(blockPos[1]<0||blockPos[1]>49||blockPos[0]<0||blockPos[0]>15||blockPos[2]<0||blockPos[2]>15)
+            return null;
+
+        if(blocks[blockPos[1]][blockPos[0]][blockPos[2]]==BlockTypes.AIR)
+            return null;
+
+        return new RaycastHit(
+                point,
+                chunkPos[0],
+                chunkPos[1],
+                blockPos[0],
+                blockPos[1],
+                blockPos[2]
+        );
     }
 }
