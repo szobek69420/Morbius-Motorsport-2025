@@ -31,7 +31,7 @@ public class ChunkManager {
                         continue;
                     }
 
-                    if(!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
+                    if(!isChunkPending(playerChunkX+j,playerChunkZ+k)&&!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
                         pendingUpdates.add(new ChunkUpdate(playerChunkX+j,playerChunkZ+k, ChunkUpdate.Type.LOAD,null));
                         return;
                     }
@@ -92,6 +92,15 @@ public class ChunkManager {
         return false;
     }
 
+    private boolean isChunkPending(int chunkX, int chunkZ){
+        for(ChunkUpdate chomk: pendingUpdates){
+            if(chomk.chunkX==chunkX&&chomk.chunkZ==chunkZ)
+                return true;
+        }
+
+        return false;
+    }
+
     public void unloadChunk(int playerChunkX, int playerChunkZ){
         for(Chunk chomk : loadedChunks){
             if(Math.abs(playerChunkX-chomk.chunkX)>CHUNK_RENDER_DISTANCE||Math.abs(playerChunkZ-chomk.chunkZ)>CHUNK_RENDER_DISTANCE){
@@ -145,17 +154,17 @@ public class ChunkManager {
         int[] chunkPos=new int[2];
 
         if(pos.get(0)<0){
-            chunkPos[0]=((int)(pos.get(0)-17.0f))/16;
+            chunkPos[0]=((int)(pos.get(0)-15.5f))/16;
         }
         else{
-            chunkPos[0]=((int)pos.get(0))/16;
+            chunkPos[0]=((int)(pos.get(0)+0.5f))/16;
         }
 
         if(pos.get(2)<0){
-            chunkPos[1]=((int)(pos.get(2)-17.0f))/16;
+            chunkPos[1]=((int)(pos.get(2)-15.5f))/16;
         }
         else{
-            chunkPos[1]=((int)pos.get(2))/16;
+            chunkPos[1]=((int)(pos.get(2)+0.5f))/16;
         }
 
         return chunkPos;

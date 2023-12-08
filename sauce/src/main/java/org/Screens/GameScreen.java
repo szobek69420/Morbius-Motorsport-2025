@@ -91,7 +91,7 @@ public class GameScreen extends JPanel {
             this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
             this.chunkManager.updateChunks(player);
             Vector3 tempVector69=selectionKuba.getPositionByReference().copy();
-            selectionKuba.setPosition(Vector3.zero);
+            selectionKuba.setPosition(Camera.main.getPosition());
             Camera.main.sortDrawables();
             selectionKuba.setPosition(tempVector69);
             return;

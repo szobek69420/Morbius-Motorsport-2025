@@ -80,12 +80,10 @@ public class Camera {
 
         ArrayList<Thread> renderThreads=new ArrayList<>();
 
-        for(int i=drawables.size()-1;i>0;i--)
+        for(int i=drawables.size()-1;i>=0;i--)
         {
             drawables.get(i).render(image,depthBuffer,this);
         }
-
-        drawables.get(0).render(image,depthBuffer,this);
     }
 
     /**
