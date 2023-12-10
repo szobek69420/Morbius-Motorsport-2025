@@ -308,7 +308,7 @@ public class GameScreen extends JPanel {
             else
                 pos=Vector3.zero;
 
-            String posString="Pos: "+((int)(pos.get(0)*100))/100.0f +", "+((int)(pos.get(1)*100))/100.0f +", "+((int)(pos.get(2)*100))/100.0f;
+            String posString="Pos: "+(int)pos.get(0) +", "+(int)pos.get(1) +", "+(int)pos.get(2);
             imageGraphics.drawString(posString,5,10);
             String lookString="Rot: "+((int)(yaw*100))/100.0f +", "+((int)(pitch*100))/100.0f;
             imageGraphics.drawString(lookString,5,20);

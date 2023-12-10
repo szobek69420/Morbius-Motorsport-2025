@@ -2,6 +2,7 @@ package main.java.org.MainFrame;
 
 import main.java.org.InputManagement.InputManager;
 import main.java.org.Screens.GameScreen;
+import main.java.org.Screens.WelcomeScreen;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +16,7 @@ public class MainFrame extends JFrame {
         QUIT
     };
 
-    private STATE currentState=STATE.GAME;
+    private STATE currentState=STATE.MAIN_MENU;
 
     public void setCurrentState(STATE state){
         currentState=state;
@@ -50,6 +51,25 @@ public class MainFrame extends JFrame {
     public void startGame(){
         while(currentState!=STATE.QUIT){
             switch (currentState){
+                case MAIN_MENU:
+                    WelcomeScreen ws=new WelcomeScreen(this);
+                    this.add(ws);
+                    this.setVisible(true);
+
+                    try{
+                        while(currentState==STATE.MAIN_MENU)
+                            Thread.sleep(50);
+                    }
+                    catch(InterruptedException ie){
+                        this.remove(ws);
+                        this.setVisible(true);
+                    }
+
+                    this.remove(ws);
+                    this.setVisible(true);
+
+                    break;
+
                 case GAME:
                     GameScreen gs=new GameScreen();
                     this.add(gs);
