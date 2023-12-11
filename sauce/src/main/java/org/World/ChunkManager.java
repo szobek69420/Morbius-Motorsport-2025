@@ -8,7 +8,7 @@ import main.java.org.Updateable.Player;
 import java.util.*;
 
 public class ChunkManager {
-    public static final int CHUNK_RENDER_DISTANCE=8;
+    public static final int CHUNK_RENDER_DISTANCE=4;
 
     private List<Chunk> loadedChunks;
     private List<ChunkUpdate> pendingUpdates;
@@ -141,9 +141,9 @@ public class ChunkManager {
 
     public RaycastHit gaycast(Vector3 pos, Vector3 direction, float range){
         Vector3.normalize(direction);
-        direction=Vector3.multiplyWithScalar(0.02f,direction);//a pontossag 1/50 meter
+        direction=Vector3.multiplyWithScalar(0.01f,direction);//a pontossag 1/100 meter
 
-        int range2=(int)(range*50);
+        int range2=(int)(range*100);
 
         int[] chunkPos;
         RaycastHit rh;

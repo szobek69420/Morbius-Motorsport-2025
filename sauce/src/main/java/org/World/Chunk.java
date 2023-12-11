@@ -79,6 +79,8 @@ public class Chunk extends Drawable {
                         else
                             blocks[y][x][z]=BlockTypes.DIRT;
                     }
+                    else if(y==0)
+                        blocks[y][x][z]=BlockTypes.BEDROCK;
                     else
                         blocks[y][x][z]=BlockTypes.STONE;
                 }
@@ -401,7 +403,8 @@ public class Chunk extends Drawable {
                 chunkPos[1],
                 blockPos[0],
                 blockPos[1],
-                blockPos[2]
+                blockPos[2],
+                blocks[blockPos[1]][blockPos[0]][blockPos[2]]
         );
     }
 }

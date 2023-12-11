@@ -29,11 +29,11 @@ public class InputManager  {
     /**
      * @hidden
      */
-    private static int basedMouseX=Toolkit.getDefaultToolkit().getScreenSize().width/2;
+    private static int basedMouseX=300;
     /**
      * @hidden
      */
-    private static int basedMouseY=Toolkit.getDefaultToolkit().getScreenSize().height/2;
+    private static int basedMouseY=300;
     /**
      * Die horizontale Mausbewegung
      */

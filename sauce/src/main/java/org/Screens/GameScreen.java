@@ -79,6 +79,8 @@ public class GameScreen extends JPanel {
         bg.repaint();
         fg.repaint();
 
+        while(bg.isPaintingTile())
+
         if((System.nanoTime()-lastFrame)*0.000000001>1){
             lastFrameCount=frameCount;
 
@@ -123,7 +125,7 @@ public class GameScreen extends JPanel {
             Vector3 selectionPosition=new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z);
             selectionKuba.setPosition(selectionPosition);
 
-            if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.2){
+            if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.2&&rh.blockType!=BlockTypes.BEDROCK){
                 lastBlockBreak=0;
                 chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.AIR);
                 Chunk chomk;
@@ -153,7 +155,7 @@ public class GameScreen extends JPanel {
                 if(chomk!=null)
                     chunkManager.reloadChunk(chomk);
             }
-            else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.002){
+            else if(InputManager.MOUSE_RIGHT&&lastBlockPlace>0.2){
                 lastBlockPlace=0;
                 Vector3 tempDeltaPos=new Vector3(
                         rh.point.get(0)-selectionPosition.get(0),
@@ -224,7 +226,7 @@ public class GameScreen extends JPanel {
                 }
 
                 if(!player.isBlockInPlayer(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z))){
-                    chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.YELLOW);
+                    chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.BEDROCK);
                     Chunk chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ);
                     if(chomk!=null)
                         chunkManager.reloadChunk(chomk);
@@ -242,8 +244,8 @@ public class GameScreen extends JPanel {
         }
 
         @Override
-        public void paint(Graphics g){
-            super.paint(g);
+        public void paintComponent(Graphics g){
+            super.paintComponent(g);
         }
     }
 
@@ -276,8 +278,8 @@ public class GameScreen extends JPanel {
         }
 
         @Override
-        public void paint(Graphics g){
-            super.paint(g);
+        public void paintComponent(Graphics g){
+            super.paintComponent(g);
 
             clearBuffers();
 
@@ -320,6 +322,7 @@ public class GameScreen extends JPanel {
             imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
 
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
+
         }
 
         private void clearBuffers(){

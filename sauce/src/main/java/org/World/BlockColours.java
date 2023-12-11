@@ -66,6 +66,14 @@ public class BlockColours {
             new Color(150,132,36),
             new Color(175,154,42),
             new Color(250,220,60),
-            new Color(125,110,30)
+            new Color(125,110,30),
+
+            //BEDROCK
+            new Color(45,45,45),
+            new Color(40,40,40),
+            new Color(30,30,30),
+            new Color(35,35,35),
+            new Color(20,20,20),
+            new Color(25,25,25)
     };
 }

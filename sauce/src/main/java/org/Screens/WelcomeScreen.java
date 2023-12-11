@@ -2,6 +2,8 @@ package main.java.org.Screens;
 
 import main.java.org.MainFrame.MainFrame;
 import main.java.org.Resizable.Resizable;
+import main.java.org.UI.MyChangeListener;
+import main.java.org.UI.RoundedBorder;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -62,6 +64,7 @@ public class WelcomeScreen extends JPanel implements Resizable {
         startButton.setBorder(new RoundedBorder(30));
         startButton.setBounds(centerX-150,centerY+50,300,50);
         startButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.GAME);});
+        startButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
         this.add(startButton);
 
         JButton settingsButton = new JButton("morb");
@@ -72,6 +75,7 @@ public class WelcomeScreen extends JPanel implements Resizable {
         settingsButton.setBorder(new RoundedBorder(30));
         settingsButton.setBounds(centerX-150,centerY+110,300,50);
         settingsButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.GAME);});
+        settingsButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
         this.add(settingsButton);
 
         JButton quitButton = new JButton("not proceed");
@@ -82,36 +86,12 @@ public class WelcomeScreen extends JPanel implements Resizable {
         quitButton.setBorder(new RoundedBorder(30));
         quitButton.setBounds(centerX-150,centerY+170,300,50);
         quitButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.QUIT);});
+        quitButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
         this.add(quitButton);
     }
 
     @Override
     public void onResize() {
         fillScreen();
-    }
-
-    private static class RoundedBorder implements Border {
-
-        private int radius;
-
-
-        RoundedBorder(int radius) {
-            this.radius = radius;
-        }
-
-
-        public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
-        }
-
-
-        public boolean isBorderOpaque() {
-            return true;
-        }
-
-
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
-        }
     }
 }
