@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
  */
 public class SelectionCube extends Drawable{
 
+    private Color color;
+
     /**
      * Erzeugt eine neue Würfelinstanz
      * @param color Die Basisfarbe des Würfels
@@ -46,20 +48,9 @@ public class SelectionCube extends Drawable{
         int g=color.getGreen();
         int b=color.getBlue();
 
-        faceColors=new Color[]{
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100),
-                new Color(r,g,b,100)
-        };
+        faceColors=null;
+
+        this.color=Color.white;
 
         scale=new Vector3(1,1,1);
         pos=new Vector3(0,0,0);
@@ -167,11 +158,13 @@ public class SelectionCube extends Drawable{
         }
 
         //draw
+        Color orgColor=g.getColor();
+        g.setColor(color);
+
         for(int i=0;i<faceCount;i++){
 
             switch (clipCount[i]){
                 case 0:
-                    g.setColor(faceColors[i]);
                     g.fillPolygon(
                             new int[]{x[indices[3*i]],x[indices[3*i+1]],x[indices[3*i+2]]},
                             new int[]{y[indices[3*i]],y[indices[3*i+1]],y[indices[3*i+2]]},
@@ -220,7 +213,6 @@ public class SelectionCube extends Drawable{
                         modZ2[2+j]=nearPlane;
                     }
 
-                    g.setColor(faceColors[i]);
                     g.fillPolygon(new int[]{modX2[0],modX2[1],modX2[2]},new int[]{modY2[0],modY2[1],modY2[2]},3);
                     g.fillPolygon(new int[]{modX2[1],modX2[2],modX2[3]},new int[]{modY2[1],modY2[2],modY2[3]},3);
                     break;
@@ -272,10 +264,15 @@ public class SelectionCube extends Drawable{
                     //System.out.println("skipped: "+x[indices[3*i]]+" "+y[indices[3*i]]+" "+x[indices[3*i+1]]+" "+y[indices[3*i+1]]+" "+x[indices[3*i+2]]+" "+y[indices[3*i+2]]);
                     /*g.setColor(faceColors[i]);
                     g.fillPolygon(modX,modY,3);*/
-                    g.setColor(faceColors[i]);
                     g.fillPolygon(new int[]{modX[0],modX[1],modX[2]},new int[]{modY[0],modY[1],modY[2]},3);
                     break;
             }
         }
+
+        g.setColor(orgColor);
+    }
+
+    public void setColor(Color color){
+        this.color=color;
     }
 }

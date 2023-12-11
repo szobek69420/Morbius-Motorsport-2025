@@ -3,6 +3,7 @@ package main.java.org.Rendering.Camera;
 import main.java.org.LinearAlgebruh.Matrix3;
 import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Rendering.Drawables.Drawable;
+import main.java.org.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,9 +15,9 @@ import java.util.ArrayList;
 public class Camera {
 
     public static Camera main;
-    public static final float RENDER_DISTANCE=60;
-    public static final float FOG_START=50;
-    public static final float ONE_PER_FOG_LENGTH=0.1f;
+    public static float RENDER_DISTANCE=60;
+    public static float FOG_START=50;
+    public static float ONE_PER_FOG_LENGTH=0.1f;
 
     public static final Color CLEAR_COLOR=new Color(0,170,250);
     public static final int CLEAR_COLOR_INT=CLEAR_COLOR.getRGB();
@@ -66,8 +67,10 @@ public class Camera {
         aspectXY=((float)GAME_WIDTH/GAME_HEIGHT);
         aspectYX=((float)GAME_HEIGHT/GAME_WIDTH);
 
+        RENDER_DISTANCE=Settings.renderDistance*16-5;
+        FOG_START=Settings.renderDistance*16-15;
 
-        fov=60.0f;
+        fov= 5;
         nearPlane=0.05f;
         calculateScreenDimensions();
 

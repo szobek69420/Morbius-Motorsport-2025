@@ -2,6 +2,7 @@ package main.java.org.MainFrame;
 
 import main.java.org.InputManagement.InputManager;
 import main.java.org.Screens.GameScreen;
+import main.java.org.Screens.SettingsScreen;
 import main.java.org.Screens.WelcomeScreen;
 
 import javax.swing.*;
@@ -12,6 +13,7 @@ public class MainFrame extends JFrame {
 
     public static enum STATE{
         MAIN_MENU,
+        SETTINGS,
         GAME,
         QUIT
     };
@@ -66,6 +68,25 @@ public class MainFrame extends JFrame {
                     }
 
                     this.remove(ws);
+                    this.setVisible(true);
+
+                    break;
+
+                case SETTINGS:
+                    SettingsScreen ss=new SettingsScreen(this);
+                    this.add(ss);
+                    this.setVisible(true);
+
+                    try{
+                        while(currentState==STATE.SETTINGS)
+                            Thread.sleep(50);
+                    }
+                    catch(InterruptedException ie){
+                        this.remove(ss);
+                        this.setVisible(true);
+                    }
+
+                    this.remove(ss);
                     this.setVisible(true);
 
                     break;

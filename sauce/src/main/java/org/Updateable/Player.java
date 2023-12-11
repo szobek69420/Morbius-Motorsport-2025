@@ -6,6 +6,7 @@ import main.java.org.Physics.AABB;
 import main.java.org.Physics.CollisionDetection;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Screens.GameScreen;
+import main.java.org.Settings;
 
 
 import java.awt.*;
@@ -64,8 +65,8 @@ public class Player implements Updateable{
 
         //BASED_FOV=Settings.getFov();
         //ZOOMED_FOV=Settings.getFov()/4;
-        BASED_FOV=50;
-        ZOOMED_FOV=10;
+        BASED_FOV= Settings.fieldOfView;
+        ZOOMED_FOV= (float) Settings.fieldOfView /4;
 
         currentFov=BASED_FOV;
     }

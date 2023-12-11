@@ -3,12 +3,13 @@ package main.java.org.World;
 import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
+import main.java.org.Settings;
 import main.java.org.Updateable.Player;
 
 import java.util.*;
 
 public class ChunkManager {
-    public static final int CHUNK_RENDER_DISTANCE=4;
+    private int CHUNK_RENDER_DISTANCE;
 
     private List<Chunk> loadedChunks;
     private List<ChunkUpdate> pendingUpdates;
@@ -25,6 +26,8 @@ public class ChunkManager {
         loadedChunks=new ArrayList<>();
         changedBlocks=new HashMap<>();
         pendingUpdates=new ArrayList<ChunkUpdate>();
+
+        CHUNK_RENDER_DISTANCE= Settings.renderDistance;
     }
 
     public void loadChunk(int playerChunkX, int playerChunkZ, Player player){

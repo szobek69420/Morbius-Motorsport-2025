@@ -12,6 +12,7 @@ import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Rendering.Drawables.SelectionCube;
 import main.java.org.Updateable.Player;
+import main.java.org.World.BlockColours;
 import main.java.org.World.BlockTypes;
 import main.java.org.World.Chunk;
 import main.java.org.Rendering.Drawables.Cube;
@@ -124,6 +125,10 @@ public class GameScreen extends JPanel {
         if(rh!=null){
             Vector3 selectionPosition=new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z);
             selectionKuba.setPosition(selectionPosition);
+            int kubaColorInt= BlockColours.blockColours[6*rh.blockType.ordinal()+4].brighter().getRGB();
+            kubaColorInt&=0x00FFFFFF;
+            kubaColorInt|=0x88000000;
+            selectionKuba.setColor(new Color(kubaColorInt));
 
             if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.2&&rh.blockType!=BlockTypes.BEDROCK){
                 lastBlockBreak=0;

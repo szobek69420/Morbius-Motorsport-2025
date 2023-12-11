@@ -74,7 +74,7 @@ public class WelcomeScreen extends JPanel implements Resizable {
         settingsButton.setContentAreaFilled(false);
         settingsButton.setBorder(new RoundedBorder(30));
         settingsButton.setBounds(centerX-150,centerY+110,300,50);
-        settingsButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.GAME);});
+        settingsButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.SETTINGS);});
         settingsButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
         this.add(settingsButton);
 
