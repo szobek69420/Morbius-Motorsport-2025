@@ -11,6 +11,8 @@ import main.java.org.MainFrame.MainFrame;
 import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Rendering.Drawables.SelectionCube;
+import main.java.org.UI.MyChangeListener;
+import main.java.org.UI.RoundedBorder;
 import main.java.org.Updateable.Player;
 import main.java.org.World.BlockColours;
 import main.java.org.World.BlockTypes;
@@ -19,6 +21,8 @@ import main.java.org.Rendering.Drawables.Cube;
 import main.java.org.World.ChunkManager;
 
 public class GameScreen extends JPanel {
+
+    private MainFrame mainFrame;
 
     private Foreground fg;
     private Background bg;
@@ -36,10 +40,15 @@ public class GameScreen extends JPanel {
     private static int lastChunkUpdates=0;
     public static int getLastChunkUpdates(){return lastChunkUpdates;}
 
-    public GameScreen(){
+    //states
+    private boolean paused=false;
+
+    public GameScreen(MainFrame mf){
         super();
 
         this.setLayout(null);
+
+        this.mainFrame=mf;
 
         fg=new Foreground();
         bg=new Background();
@@ -47,8 +56,8 @@ public class GameScreen extends JPanel {
         fg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
         bg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
 
-        this.add(fg);
         this.add(bg);
+        this.add(fg);
 
         this.chunkManager=new ChunkManager();
         this.player=new Player();
@@ -75,12 +84,18 @@ public class GameScreen extends JPanel {
     private double lastBlockPlace=0;
 
     public void frame(double deltaTime){
+        if(paused)
+            return;
+
+        if(InputManager.ESCAPE){
+            pause();
+            mainFrame.setVisible(true);
+        }
+
+
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
-        bg.repaint();
-        fg.repaint();
-
-        while(bg.isPaintingTile())
+        this.repaint();
 
         if((System.nanoTime()-lastFrame)*0.000000001>1){
             lastFrameCount=frameCount;
@@ -96,6 +111,9 @@ public class GameScreen extends JPanel {
     }
 
     public void physicsFrame(double deltaTime, boolean chunkLoad){
+        if(paused)
+            return;
+
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
         if(chunkLoad){
@@ -231,7 +249,7 @@ public class GameScreen extends JPanel {
                 }
 
                 if(!player.isBlockInPlayer(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z))){
-                    chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.BEDROCK);
+                        chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.GEH);
                     Chunk chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ);
                     if(chomk!=null)
                         chunkManager.reloadChunk(chomk);
@@ -243,14 +261,94 @@ public class GameScreen extends JPanel {
         }
     }
 
+    public void pause(){
+        InputManager.showCursor(mainFrame);
+        bg.setVisible(false);
+        fg.pause(mainFrame,this);
+        paused=true;
+    }
+
+    public void unpause(){
+        InputManager.hideCursor(mainFrame);
+        fg.removeAll();
+        fg.setVisible(true);
+        bg.setVisible(true);
+        InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
+        InputManager.fetchMousePosition();//törli az előző visszarakás adatait
+        mainFrame.requestFocus();
+        paused=false;
+    }
+
     private static class Foreground extends JPanel{
+
         public Foreground(){
             this.setBackground(new Color(0,0,0,0));
+            this.setLayout(new GridLayout(1,1));
+            this.setDoubleBuffered(true);
         }
 
-        @Override
-        public void paintComponent(Graphics g){
-            super.paintComponent(g);
+        public void pause(MainFrame mainFrame, GameScreen gameScreen){
+            this.removeAll();
+            this.add(new PauseMenu(mainFrame,gameScreen));
+            this.setVisible(true);
+        }
+
+        private static class PauseMenu extends JPanel{
+            public PauseMenu(MainFrame mf, GameScreen gameScreen){
+                this.setBackground(new Color(0,0,0,100));
+
+                this.setLayout(null);
+
+                Font titleFont=new Font("Arial",Font.BOLD,50);
+                Font normalFont=new Font("Arial",Font.BOLD,20);
+                int centerX= MainFrame.SCREEN_WIDTH/2;
+                int centerY=MainFrame.SCREEN_HEIGHT/2;
+
+
+                JLabel title=new JLabel("paused",SwingConstants.CENTER);
+                title.setBackground(new Color(0,0,0,0));
+                title.setForeground(new Color(255,209,0));
+                title.setFont(titleFont);
+                title.setBounds(centerX-400,centerY-100,800,50);
+                this.add(title);
+
+                JButton startButton = new JButton("proceed");
+                startButton.setBackground(Color.black);
+                startButton.setForeground(Color.white);
+                startButton.setFont(normalFont);
+                startButton.setContentAreaFilled(false);
+                startButton.setBorder(new RoundedBorder(30));
+                startButton.setBounds(centerX-100,centerY-5,200,50);
+                startButton.addActionListener((a)->{gameScreen.unpause();});
+                startButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
+                this.add(startButton);
+
+                JButton settingsButton = new JButton("not proceed");
+                settingsButton.setBackground(Color.black);
+                settingsButton.setForeground(Color.white);
+                settingsButton.setFont(normalFont);
+                settingsButton.setContentAreaFilled(false);
+                settingsButton.setBorder(new RoundedBorder(30));
+                settingsButton.setBounds(centerX-100,centerY+55,200,50);
+                settingsButton.addActionListener((a)->{mf.setCurrentState(MainFrame.STATE.MAIN_MENU);});
+                settingsButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
+                this.add(settingsButton);
+            }
+
+            @Override
+            public void paint(Graphics g){
+                int centerX= MainFrame.SCREEN_WIDTH/2;
+                int centerY=MainFrame.SCREEN_HEIGHT/2;
+
+                Color orgColor=g.getColor();
+                g.setColor(Color.black);
+                g.fillRoundRect(centerX-200,centerY-150,400,300,40,40);
+                g.setColor(Color.white);
+                g.drawRoundRect(centerX-200,centerY-150,400,300,40,40);
+                g.setColor(orgColor);
+
+                super.paint(g);
+            }
         }
     }
 

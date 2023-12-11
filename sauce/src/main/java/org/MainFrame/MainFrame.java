@@ -92,7 +92,7 @@ public class MainFrame extends JFrame {
                     break;
 
                 case GAME:
-                    GameScreen gs=new GameScreen();
+                    GameScreen gs=new GameScreen(this);
                     this.add(gs);
 
                     this.addKeyListener(new InputManager.KeyInput());
@@ -107,11 +107,6 @@ public class MainFrame extends JFrame {
                         double lastFrame=System.nanoTime()*0.000000001;
 
                         while(currentState==STATE.GAME){
-                            if(InputManager.ESCAPE){
-                                currentState=STATE.QUIT;
-                                System.out.println("gone");
-                                break;
-                            }
                             //try{Thread.sleep(100);}catch (Exception ex) {System.err.println("huh");}
 
 
@@ -132,11 +127,6 @@ public class MainFrame extends JFrame {
                         double lastPhysicsFrame=System.nanoTime()*0.000000001;
                         double lastChunkLoad=0;
                         while(currentState==STATE.GAME){
-                            if(InputManager.ESCAPE){
-                                currentState=STATE.QUIT;
-                                System.out.println("gone2");
-                                break;
-                            }
 
                             if(System.nanoTime()*0.000000001-lastChunkLoad>0.05){
                                 gs.physicsFrame(0,true);
@@ -169,6 +159,9 @@ public class MainFrame extends JFrame {
                         System.err.println("something wong with the gaym thredz");
                         System.exit(-420);
                     }
+
+                    this.remove(gs);
+                    this.setVisible(true);
 
                     break;
             }

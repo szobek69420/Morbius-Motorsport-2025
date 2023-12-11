@@ -73,7 +73,15 @@ public class BlockColours {
             new Color(40,40,40),
             new Color(30,30,30),
             new Color(35,35,35),
-            new Color(20,20,20),
-            new Color(25,25,25)
+            new Color(50,50,50),
+            new Color(25,25,25),
+
+            //GEH
+            new Color(200,0,200),
+            new Color(180,0,180),
+            new Color(140,0,140),
+            new Color(160,0,160),
+            new Color(220,0,220),
+            new Color(120,0,120)
     };
 }
