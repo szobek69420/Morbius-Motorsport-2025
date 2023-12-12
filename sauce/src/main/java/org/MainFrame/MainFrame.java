@@ -7,6 +7,7 @@ import main.java.org.Screens.WelcomeScreen;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 
 public class MainFrame extends JFrame {
@@ -95,8 +96,19 @@ public class MainFrame extends JFrame {
                     GameScreen gs=new GameScreen(this);
                     this.add(gs);
 
-                    this.addKeyListener(new InputManager.KeyInput());
-                    this.addMouseListener(new InputManager.MouseInput());
+                    KeyListener kl= new InputManager.KeyInput();
+                    this.addKeyListener(kl);
+                    MouseListener ml=new InputManager.MouseInput();
+                    this.addMouseListener(ml);
+                    MouseWheelListener mwl=new InputManager.MouseWheelInput();
+                    this.addMouseWheelListener(mwl);
+
+                    FocusListener fl=new FocusListener() {
+                        public void focusLost(FocusEvent e) {gs.pause();}
+                        public void focusGained(FocusEvent e) {}
+                    };
+                    this.addFocusListener(fl);
+
                     InputManager.hideCursor(this);
 
                     this.requestFocus();
@@ -161,6 +173,12 @@ public class MainFrame extends JFrame {
                     }
 
                     this.remove(gs);
+
+                    this.removeKeyListener(kl);
+                    this.removeMouseListener(ml);
+                    this.removeMouseWheelListener(mwl);
+                    this.removeFocusListener(fl);
+
                     this.setVisible(true);
 
                     break;

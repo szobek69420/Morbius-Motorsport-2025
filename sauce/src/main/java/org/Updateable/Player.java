@@ -5,8 +5,10 @@ import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.Physics.AABB;
 import main.java.org.Physics.CollisionDetection;
 import main.java.org.Rendering.Camera.Camera;
+import main.java.org.Rendering.Drawables.Drawable;
 import main.java.org.Screens.GameScreen;
 import main.java.org.Settings;
+import main.java.org.World.BlockTypes;
 
 
 import java.awt.*;
@@ -56,6 +58,12 @@ public class Player implements Updateable{
      */
     private float currentFov;
 
+    private final int HOTBAR_SIZE=5;
+    private BlockTypes[] hotbarSlots;
+    private int selectedHotbarSlot, lastScrollCount;
+    public BlockTypes getHeldBlock(){return hotbarSlots[selectedHotbarSlot];}
+    private Drawable heldBlock;
+
     /**
      * Erzeugt eine neue Player-Instanz.
      * Die Collider und Schatten des Spielers werden auch hier erzeugt.
@@ -69,6 +77,10 @@ public class Player implements Updateable{
         ZOOMED_FOV= (float) Settings.fieldOfView /4;
 
         currentFov=BASED_FOV;
+
+        hotbarSlots=new BlockTypes[]{BlockTypes.BEDROCK,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,BlockTypes.GEH};
+        selectedHotbarSlot=0;
+        lastScrollCount=InputManager.SCROLL_COUNT;
     }
 
     /**
@@ -101,6 +113,14 @@ public class Player implements Updateable{
             isSprinting=true;
         if(!InputManager.W)
             isSprinting=false;
+
+        if(lastScrollCount!=InputManager.SCROLL_COUNT){
+            if(lastScrollCount>InputManager.SCROLL_COUNT)
+                selectedHotbarSlot=selectedHotbarSlot+1==HOTBAR_SIZE?0:selectedHotbarSlot+1;
+            else
+                selectedHotbarSlot=selectedHotbarSlot==0?HOTBAR_SIZE-1:selectedHotbarSlot-1;
+            lastScrollCount=InputManager.SCROLL_COUNT;
+        }
 
         zoomControl((float) deltaTime);
 

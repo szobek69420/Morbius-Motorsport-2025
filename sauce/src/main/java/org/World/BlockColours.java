@@ -13,12 +13,12 @@ public class BlockColours {
             //-y
 
             //AIR
-            new Color(0,0,0),
-            new Color(0,0,0),
-            new Color(0,0,0),
-            new Color(0,0,0),
-            new Color(0,0,0),
-            new Color(0,0,0),
+            new Color(0,0,0,0),
+            new Color(0,0,0,0),
+            new Color(0,0,0,0),
+            new Color(0,0,0,0),
+            new Color(0,0,0,0),
+            new Color(0,0,0,0),
 
             //STONE
             new Color(125,125,125),

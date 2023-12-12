@@ -63,7 +63,6 @@ public class GameScreen extends JPanel {
         this.player=new Player();
 
 
-
         //---------------------------
         Camera cum=new Camera(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
         cum.setYaw(30);
@@ -249,7 +248,7 @@ public class GameScreen extends JPanel {
                 }
 
                 if(!player.isBlockInPlayer(new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z))){
-                        chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, BlockTypes.GEH);
+                        chunkManager.changeBlock(rh.chunkX,rh.chunkZ,rh.x,rh.y,rh.z, player.getHeldBlock());
                     Chunk chomk=this.chunkManager.getChunkAtPos(rh.chunkX,rh.chunkZ);
                     if(chomk!=null)
                         chunkManager.reloadChunk(chomk);
@@ -262,21 +261,25 @@ public class GameScreen extends JPanel {
     }
 
     public void pause(){
-        InputManager.showCursor(mainFrame);
-        bg.setVisible(false);
-        fg.pause(mainFrame,this);
-        paused=true;
+        if(!paused){
+            InputManager.showCursor(mainFrame);
+            bg.setVisible(false);
+            fg.pause(mainFrame,this);
+            paused=true;
+        }
     }
 
     public void unpause(){
-        InputManager.hideCursor(mainFrame);
-        fg.removeAll();
-        fg.setVisible(true);
-        bg.setVisible(true);
-        InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
-        InputManager.fetchMousePosition();//törli az előző visszarakás adatait
-        mainFrame.requestFocus();
-        paused=false;
+        if(paused){
+            InputManager.hideCursor(mainFrame);
+            fg.removeAll();
+            fg.setVisible(true);
+            bg.setVisible(true);
+            InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
+            InputManager.fetchMousePosition();//törli az előző visszarakás adatait
+            mainFrame.requestFocus();
+            paused=false;
+        }
     }
 
     private static class Foreground extends JPanel{
@@ -400,8 +403,6 @@ public class GameScreen extends JPanel {
             imageGraphics.setColor(Color.white);
 
             //left side
-            imageGraphics.drawString("Press ESC to quit",5,MainFrame.FRAME_BUFFER_HEIGHT-25);
-
             Vector3 pos;
             float pitch=0,yaw=0;
             if(Camera.main!=null){

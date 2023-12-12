@@ -46,7 +46,7 @@ public class SettingsScreen extends JPanel implements Resizable {
 
         Color transparent =new Color(0,0,0,0);
 
-
+        //title
         JLabel title=new JLabel("sedigs",SwingConstants.CENTER);
         title.setBackground(transparent);
         title.setForeground(Color.white);
@@ -54,6 +54,7 @@ public class SettingsScreen extends JPanel implements Resizable {
         title.setBounds(centerX-400,centerY-300,800,60);
         this.add(title);
 
+        //fov
         JLabel fovLabel=new JLabel("fov",SwingConstants.LEFT);
         fovLabel.setBackground(transparent);
         fovLabel.setForeground(Color.white);
@@ -61,23 +62,30 @@ public class SettingsScreen extends JPanel implements Resizable {
         fovLabel.setBounds(centerX-200,centerY-100,400,20);
         this.add(fovLabel);
 
-        JSlider fovSlider=new JSlider(15,89, Settings.fieldOfView){
+        JLabel fovValue=new JLabel(""+Settings.fieldOfView,SwingConstants.RIGHT);
+        fovValue.setBackground(transparent);
+        fovValue.setForeground(Color.white);
+        fovValue.setFont(normalFont);
+        fovValue.setBounds(centerX+150,centerY-65,50,20);
+        this.add(fovValue);
+
+        JSlider fovSlider=new JSlider(1,89, Settings.fieldOfView){
             @Override
             public void updateUI() {
                 setUI(new CustomSliderUI(this, new Color(0,255,255), new Color(255, 209,0)));
             }
         };
-        fovSlider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent ce) {
+        fovSlider.addChangeListener((e)->{
                 Settings.fieldOfView=fovSlider.getValue();
-            }
-        });
+                fovValue.setText(""+Settings.fieldOfView);
+            });
         fovSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         fovSlider.setForeground(Color.white);
         fovSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        fovSlider.setBounds(centerX-200,centerY-80,400,50);
+        fovSlider.setBounds(centerX-200,centerY-80,350,50);
         this.add(fovSlider);
 
+        //render distance
         JLabel renderDistanceLabel=new JLabel("render distance",SwingConstants.LEFT);
         renderDistanceLabel.setBackground(transparent);
         renderDistanceLabel.setForeground(Color.white);
@@ -85,20 +93,31 @@ public class SettingsScreen extends JPanel implements Resizable {
         renderDistanceLabel.setBounds(centerX-200,centerY,400,20);
         this.add(renderDistanceLabel);
 
-        JSlider renderDistanceSlider=new JSlider(2,10, Settings.renderDistance){
+        JLabel renderDistanceValue=new JLabel(""+Settings.renderDistance,SwingConstants.RIGHT);
+        renderDistanceValue.setBackground(transparent);
+        renderDistanceValue.setForeground(Color.white);
+        renderDistanceValue.setFont(normalFont);
+        renderDistanceValue.setBounds(centerX+150,centerY+35,50,20);
+        this.add(renderDistanceValue);
+
+        JSlider renderDistanceSlider=new JSlider(2,16, Settings.renderDistance){
             @Override
             public void updateUI() {
                 setUI(new CustomSliderUI(this, new Color(0,255,255), new Color(255, 209,0)));
             }
         };
-        renderDistanceSlider.addChangeListener((e)-> {Settings.renderDistance=renderDistanceSlider.getValue();});
+        renderDistanceSlider.addChangeListener((e)-> {
+            Settings.renderDistance=renderDistanceSlider.getValue();
+            renderDistanceValue.setText(""+Settings.renderDistance);
+        });
         renderDistanceSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         renderDistanceSlider.setForeground(Color.white);
         renderDistanceSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        renderDistanceSlider.setBounds(centerX-200,centerY+20,400,50);
+        renderDistanceSlider.setBounds(centerX-200,centerY+20,350,50);
         this.add(renderDistanceSlider);
 
 
+        //save
         JButton saveButton = new JButton("back");
         saveButton.setBackground(transparent);
         saveButton.setForeground(Color.white);
@@ -109,6 +128,14 @@ public class SettingsScreen extends JPanel implements Resizable {
         saveButton.addActionListener((a)->{mainFrame.setCurrentState(MainFrame.STATE.MAIN_MENU);});
         saveButton.addChangeListener(new MyChangeListener(Color.white,new Color(0,255,255),new Color(0,150,150)));
         this.add(saveButton);
+
+        //notiz
+        JLabel note=new JLabel("NOTE: closing the game resets the settings",SwingConstants.LEFT);
+        note.setBackground(transparent);
+        note.setForeground(Color.white);
+        note.setFont(new Font("Arial", Font.ITALIC|Font.BOLD,15));
+        note.setBounds(5,MainFrame.SCREEN_HEIGHT-60,800,15);
+        this.add(note);
     }
 
     @Override

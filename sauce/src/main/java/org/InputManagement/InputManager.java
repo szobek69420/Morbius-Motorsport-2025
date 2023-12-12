@@ -4,10 +4,7 @@ import main.java.org.Screens.GameScreen;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -81,6 +78,12 @@ public class InputManager  {
      * @hidden
      */
     public static boolean MOUSE_RIGHT=false;
+
+    /**
+     * @hidden
+     * mivel a listener függetlenül fut a program többi részétől, így nem törlöm a korábbi scroll inputot, csupán hozzáadom a mostanit
+     */
+    public static int SCROLL_COUNT=0;
 
     /**
      * @hidden
@@ -212,6 +215,13 @@ public class InputManager  {
                 MOUSE_LEFT=false;
             else if(SwingUtilities.isRightMouseButton(arg0))
                 MOUSE_RIGHT=false;
+        }
+    }
+
+    public static class MouseWheelInput implements MouseWheelListener{
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            SCROLL_COUNT+=e.getWheelRotation();
         }
     }
 }
