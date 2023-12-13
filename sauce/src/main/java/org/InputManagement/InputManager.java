@@ -108,6 +108,10 @@ public class InputManager  {
     /**
      * @hidden
      */
+    public static boolean E=false;
+    /**
+     * @hidden
+     */
     public static boolean SPACE=false;
     /**
      * @hidden
@@ -155,6 +159,7 @@ public class InputManager  {
                 case KeyEvent.VK_S -> S = true;
                 case KeyEvent.VK_D -> D = true;
                 case KeyEvent.VK_C -> C = true;
+                case KeyEvent.VK_E -> E = true;
                 case KeyEvent.VK_SPACE->SPACE=true;
                 case KeyEvent.VK_SHIFT->L_SHIT=true;
                 case KeyEvent.VK_CONTROL->CONTROL=true;
@@ -178,6 +183,7 @@ public class InputManager  {
                 case KeyEvent.VK_S -> S = false;
                 case KeyEvent.VK_D -> D = false;
                 case KeyEvent.VK_C -> C = false;
+                case KeyEvent.VK_E -> E = false;
                 case KeyEvent.VK_SPACE->SPACE=false;
                 case KeyEvent.VK_SHIFT->L_SHIT=false;
                 case KeyEvent.VK_CONTROL->CONTROL=false;

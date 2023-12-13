@@ -1,6 +1,9 @@
 package main.java.org.Screens;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -41,6 +44,7 @@ public class GameScreen extends JPanel {
 
     //states
     private boolean paused=false;
+    private boolean inventoryOpen=false; private boolean canChangeInventoryState=true;
 
     private double heldBlockChanged=69.420f;//ha nulla, az azt jelenti, hogy most változott, ha 10, az azt jelenti, hogy 10 másodperce változott
     public double getHeldBlockChanged(){return heldBlockChanged;}
@@ -89,11 +93,6 @@ public class GameScreen extends JPanel {
         if(paused)
             return;
 
-        if(InputManager.ESCAPE){
-            pause();
-            mainFrame.setVisible(true);
-        }
-
 
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
@@ -116,6 +115,11 @@ public class GameScreen extends JPanel {
         if(paused)
             return;
 
+        if(InputManager.ESCAPE){
+            pause(false);
+            mainFrame.setVisible(true);
+        }
+
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
         if(chunkLoad){
@@ -129,15 +133,24 @@ public class GameScreen extends JPanel {
             return;
         }
 
-        InputManager.fetchMousePosition();
+        if(!inventoryOpen){
+            InputManager.fetchMousePosition();
+            player.update(deltaTime);
+        }
 
-        player.update(deltaTime);
         this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
 
         if(!InputManager.MOUSE_LEFT)
             lastBlockBreak=69;
         if(!InputManager.MOUSE_RIGHT)
             lastBlockPlace=69;
+
+        if(!InputManager.E)
+            canChangeInventoryState=true;
+        if(InputManager.E&&canChangeInventoryState){
+            canChangeInventoryState=false;
+            inventory();
+        }
 
         if(player.getSelectedHotbarSlot()!=currentlyHeldBlock){
             currentlyHeldBlock=player.getSelectedHotbarSlot();
@@ -269,8 +282,14 @@ public class GameScreen extends JPanel {
         }
     }
 
-    public void pause(){
+    public void pause(boolean fromFocusListener){
+        if(!paused&&inventoryOpen&&fromFocusListener)
+            return;
+
         if(!paused){
+            if(inventoryOpen)//bezárja az inventoryt, hogy ne legyen ütközés
+                inventory();
+
             InputManager.showCursor(mainFrame);
             bg.setVisible(false);
             fg.pause(mainFrame);
@@ -289,6 +308,28 @@ public class GameScreen extends JPanel {
             paused=false;
         }
     }
+
+    public void inventory(){
+        if(inventoryOpen){
+            inventoryOpen=false;
+            fg.closeInventory();
+            InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
+            InputManager.fetchMousePosition();//törli az előző visszarakás adatait
+            InputManager.hideCursor(mainFrame);
+            mainFrame.setVisible(true);
+            mainFrame.requestFocus();
+        }
+        else{
+            inventoryOpen=true;
+            fg.openInventory();
+            InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
+            InputManager.fetchMousePosition();//törli az előző visszarakás adatait
+            InputManager.showCursor(mainFrame);
+            mainFrame.setVisible(true);
+            mainFrame.requestFocus();
+        }
+    }
+
 
     private static class Foreground extends JPanel{
 
@@ -316,6 +357,18 @@ public class GameScreen extends JPanel {
             this.setVisible(true);
         }
 
+        public void openInventory(){
+            this.removeAll();
+            this.add(new Inventory(gameScreen));
+            this.setVisible(true);
+        }
+
+        public void closeInventory(){
+            this.removeAll();
+            this.add(new IngameCanvas(gameScreen));
+            this.setVisible(true);
+        }
+
         private static class IngameCanvas extends JPanel{
             private GameScreen gameScreen;
 
@@ -327,6 +380,8 @@ public class GameScreen extends JPanel {
             private Graphics2D imageGraphics2D;
 
             public IngameCanvas(GameScreen gameScreen){
+                super();
+
                 this.setBackground(new Color(0,0,0,0));
                 this.setLayout(null);
 
@@ -424,8 +479,91 @@ public class GameScreen extends JPanel {
             }
         }
 
+        private static class Inventory extends JPanel{
+            public static final int INVENTORY_WIDTH=5;
+            public static final int INVENTORY_HEIGHT=3;
+            public static final BlockTypes[] INVENTORY_CONTENT=new BlockTypes[]{
+                    BlockTypes.BEDROCK,BlockTypes.DIRT,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,
+                    BlockTypes.GEH,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,
+                    BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR
+            };
+
+            private GameScreen gameScreen;
+
+            private Font font;
+
+
+            public Inventory(GameScreen gameScreen){
+                super();
+
+                this.setBackground(new Color(0,0,0,0));
+                this.setLayout(null);
+
+
+                this.font=new Font("Arial",Font.BOLD,20);
+
+                this.gameScreen=gameScreen;
+
+                fillScreen();
+                this.setVisible(true);
+            }
+
+            @Override
+            public void paint(Graphics g){
+                int slotWidth=80;
+                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2-10;
+                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*slotWidth/2-50;
+
+                g.setColor(new Color(0,0,0,150));
+                g.fillRoundRect(startX,startY,INVENTORY_WIDTH*slotWidth+20,INVENTORY_HEIGHT*slotWidth+60,20,20);
+                g.setColor(Color.white);
+                g.setFont(this.font);
+                g.drawString("List of blocks:",startX+17,startY+35);
+
+                super.paint(g);
+            }
+
+            private void fillScreen(){
+                int slotWidth=80;
+                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2+5;
+                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*slotWidth/2+5;
+
+                for(int i=0;i<INVENTORY_HEIGHT;i++){
+                    for(int j=0;j<INVENTORY_WIDTH;j++){
+
+                        if(INVENTORY_CONTENT[i*INVENTORY_WIDTH+j]==BlockTypes.AIR)
+                            continue;
+
+                        InventorySlotButton button=new InventorySlotButton(INVENTORY_CONTENT[i*INVENTORY_WIDTH+j]);
+                        button.setBounds(startX,startY,slotWidth-10,slotWidth-10);
+                        this.add(button);
+                        button.setVisible(true);
+
+                        startX+=slotWidth;
+                    }
+                    startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2+5;
+                    startY+=slotWidth;
+                }
+            }
+
+            private static class InventorySlotButton extends JButton{
+
+                public InventorySlotButton(BlockTypes blockType){
+
+                    this.setBackground(BlockColours.blockColours[6*blockType.ordinal()]);
+                    this.setForeground(Color.white);
+
+                    this.setBorder(BorderFactory.createLineBorder(new Color(0,255,255),5,false));
+
+                    this.setVisible(true);
+                }
+            }
+        }
+
         private static class PauseMenu extends JPanel{
             public PauseMenu(MainFrame mf, GameScreen gameScreen){
+                super();
+
                 this.setBackground(new Color(0,0,0,100));
 
                 this.setLayout(null);

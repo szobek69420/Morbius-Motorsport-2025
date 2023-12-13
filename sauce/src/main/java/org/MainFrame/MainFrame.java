@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
                     this.addMouseWheelListener(mwl);
 
                     FocusListener fl=new FocusListener() {
-                        public void focusLost(FocusEvent e) {gs.pause();}
+                        public void focusLost(FocusEvent e) {gs.pause(true);}
                         public void focusGained(FocusEvent e) {}
                     };
                     this.addFocusListener(fl);
