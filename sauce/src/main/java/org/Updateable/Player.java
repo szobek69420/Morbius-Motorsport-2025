@@ -6,12 +6,14 @@ import main.java.org.Physics.AABB;
 import main.java.org.Physics.CollisionDetection;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Rendering.Drawables.Drawable;
+import main.java.org.Rendering.Drawables.HeldBlock;
 import main.java.org.Screens.GameScreen;
 import main.java.org.Settings;
 import main.java.org.World.BlockTypes;
 
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * Es ist die Entität, die von dem Spieler steuert werden wird
@@ -58,11 +60,13 @@ public class Player implements Updateable{
      */
     private float currentFov;
 
-    private final int HOTBAR_SIZE=5;
+    public static final int HOTBAR_SIZE=5;
     private BlockTypes[] hotbarSlots;
     private int selectedHotbarSlot, lastScrollCount;
+    public int getSelectedHotbarSlot(){return selectedHotbarSlot;}
     public BlockTypes getHeldBlock(){return hotbarSlots[selectedHotbarSlot];}
-    private Drawable heldBlock;
+    public BlockTypes getHotbarBlock(int index){return hotbarSlots[index];}
+    private HeldBlock heldBlock;
 
     /**
      * Erzeugt eine neue Player-Instanz.
@@ -81,6 +85,11 @@ public class Player implements Updateable{
         hotbarSlots=new BlockTypes[]{BlockTypes.BEDROCK,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,BlockTypes.GEH};
         selectedHotbarSlot=0;
         lastScrollCount=InputManager.SCROLL_COUNT;
+
+        heldBlock=new HeldBlock();
+        heldBlock.setBlockType(hotbarSlots[selectedHotbarSlot]);
+        heldBlock.setScale(new Vector3(0.1f,0.1f, 0.1f));
+        heldBlock.setPosition(new Vector3(-0.3f,-0.3f,0.4f));
     }
 
     /**
@@ -116,10 +125,11 @@ public class Player implements Updateable{
 
         if(lastScrollCount!=InputManager.SCROLL_COUNT){
             if(lastScrollCount>InputManager.SCROLL_COUNT)
-                selectedHotbarSlot=selectedHotbarSlot+1==HOTBAR_SIZE?0:selectedHotbarSlot+1;
-            else
                 selectedHotbarSlot=selectedHotbarSlot==0?HOTBAR_SIZE-1:selectedHotbarSlot-1;
+            else
+                selectedHotbarSlot = selectedHotbarSlot + 1 == HOTBAR_SIZE ? 0 : selectedHotbarSlot + 1;
             lastScrollCount=InputManager.SCROLL_COUNT;
+            heldBlock.setBlockType(hotbarSlots[selectedHotbarSlot]);
         }
 
         zoomControl((float) deltaTime);
@@ -278,5 +288,27 @@ public class Player implements Updateable{
             return false;
 
         return true;
+    }
+
+    public void renderHeldBlock(BufferedImage image, float[][] depthBuffer, Camera cum){
+        float pitch=cum.getPitch();
+        float yaw=cum.getYaw();
+        float fov=cum.getFOV();
+        Vector3 pos=cum.getPosition();
+
+        cum.setPitch(0);
+        cum.setYaw(0);
+        cum.setPosition(Vector3.zero);
+        cum.setFOV(40);
+
+
+        cum.renderUnregistered(heldBlock,image, depthBuffer);
+
+
+        cum.setFOV(fov);
+        cum.setPitch(pitch);
+        cum.setYaw(yaw);
+        cum.setPosition(pos);
+        cum.renderUnregistered(null,null, null);//ezzel csak újraszámolja a kamera állását
     }
 }

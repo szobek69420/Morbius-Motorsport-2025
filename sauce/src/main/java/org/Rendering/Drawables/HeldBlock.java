@@ -277,18 +277,18 @@ public class HeldBlock extends Drawable{
 
     public void setBlockType(BlockTypes blockType){
         faceColors=new Color[]{
-                BlockColours.blockColours[blockType.ordinal()],
-                BlockColours.blockColours[blockType.ordinal()],
-                BlockColours.blockColours[blockType.ordinal()+1],
-                BlockColours.blockColours[blockType.ordinal()+1],
-                BlockColours.blockColours[blockType.ordinal()+2],
-                BlockColours.blockColours[blockType.ordinal()+2],
-                BlockColours.blockColours[blockType.ordinal()+3],
-                BlockColours.blockColours[blockType.ordinal()+3],
-                BlockColours.blockColours[blockType.ordinal()+5],
-                BlockColours.blockColours[blockType.ordinal()+5],
-                BlockColours.blockColours[blockType.ordinal()+4],
-                BlockColours.blockColours[blockType.ordinal()+4]
+                BlockColours.blockColours[blockType.ordinal()*6],
+                BlockColours.blockColours[blockType.ordinal()*6],
+                BlockColours.blockColours[blockType.ordinal()*6+1],
+                BlockColours.blockColours[blockType.ordinal()*6+1],
+                BlockColours.blockColours[blockType.ordinal()*6+2],
+                BlockColours.blockColours[blockType.ordinal()*6+2],
+                BlockColours.blockColours[blockType.ordinal()*6+3],
+                BlockColours.blockColours[blockType.ordinal()*6+3],
+                BlockColours.blockColours[blockType.ordinal()*6+5],
+                BlockColours.blockColours[blockType.ordinal()*6+5],
+                BlockColours.blockColours[blockType.ordinal()*6+4],
+                BlockColours.blockColours[blockType.ordinal()*6+4]
         };
     }
 }

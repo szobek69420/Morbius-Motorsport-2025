@@ -81,12 +81,16 @@ public class Camera {
     public void render(BufferedImage image, float[][] depthBuffer) {
         calculateOrientation();
 
-        ArrayList<Thread> renderThreads=new ArrayList<>();
-
         for(int i=drawables.size()-1;i>=0;i--)
         {
             drawables.get(i).render(image,depthBuffer,this);
         }
+    }
+
+    public void renderUnregistered(Drawable unregisteredDrawable, BufferedImage image, float[][] depthBuffer){
+        calculateOrientation();
+        if(unregisteredDrawable!=null)
+            unregisteredDrawable.render(image, depthBuffer,this);
     }
 
     /**

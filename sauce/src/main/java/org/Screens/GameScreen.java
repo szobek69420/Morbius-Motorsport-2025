@@ -30,6 +30,7 @@ public class GameScreen extends JPanel {
     private ChunkManager chunkManager;
 
     private Player player;
+    public Player getPlayer(){return player;}
 
     private SelectionCube selectionKuba;
 
@@ -51,7 +52,7 @@ public class GameScreen extends JPanel {
         this.mainFrame=mf;
 
         fg=new Foreground();
-        bg=new Background();
+        bg=new Background(this);
 
         fg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
         bg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
@@ -364,9 +365,13 @@ public class GameScreen extends JPanel {
         private Font font;
         private FontMetrics fontMetrics;
 
+        private GameScreen gameScreen;
 
-        public Background(){
+
+        public Background(GameScreen gameScreen){
             this.setBackground(new Color(0,0,0,255));
+
+            this.gameScreen=gameScreen;
 
             this.font=new Font("Arial",Font.PLAIN,10);
 
@@ -390,6 +395,7 @@ public class GameScreen extends JPanel {
             clearBuffers();
 
             Camera.main.render(image,depthBuffer);
+            gameScreen.player.renderHeldBlock(image,depthBuffer,Camera.main);
 
             for(int i=MainFrame.FRAME_BUFFER_WIDTH/2-2;i<=MainFrame.FRAME_BUFFER_WIDTH/2;i++){
                 for(int j=MainFrame.FRAME_BUFFER_HEIGHT/2-2;j<=MainFrame.FRAME_BUFFER_HEIGHT/2;j++){
@@ -425,8 +431,12 @@ public class GameScreen extends JPanel {
             String pendingString="Pending: "+GameScreen.getPendingCount();
             imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
 
-            g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
 
+            //hotbar
+            paintHotbar(imageGraphics);
+
+            //draw screen
+            g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
         }
 
         private void clearBuffers(){
@@ -442,6 +452,29 @@ public class GameScreen extends JPanel {
             for(int i=0;i<MainFrame.FRAME_BUFFER_WIDTH;i++){
                 for(int j=0;j<MainFrame.FRAME_BUFFER_HEIGHT;j++)
                     depthBuffer[i][j]=clearValue;
+            }
+        }
+
+        private void paintHotbar(Graphics imageGraphics){
+            int slotWidth=40;
+            int startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2;
+            imageGraphics.setColor(Color.BLACK);
+            for(int i=0;i<Player.HOTBAR_SIZE;i++){
+                imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-19,slotWidth,slotWidth);
+                startX+=slotWidth;
+            }
+            imageGraphics.setColor(Color.RED);
+            imageGraphics.fillRect(
+                    MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+gameScreen.getPlayer().getSelectedHotbarSlot()*slotWidth-1,
+                    MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-20,
+                    slotWidth+2,
+                    slotWidth+2);
+
+            startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+4;
+            for(int i=0;i<Player.HOTBAR_SIZE;i++){
+                imageGraphics.setColor(BlockColours.blockColours[6*gameScreen.getPlayer().getHotbarBlock(i).ordinal()]);
+                imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                startX+=slotWidth;
             }
         }
     }

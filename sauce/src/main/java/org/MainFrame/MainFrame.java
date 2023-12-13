@@ -35,14 +35,16 @@ public class MainFrame extends JFrame {
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        SCREEN_WIDTH=(int)screenSize.getWidth()-100;
-        SCREEN_HEIGHT=(int)screenSize.getHeight()-100;
+        this.setResizable(false);
+        this.setSize((int)screenSize.getWidth()-100,(int)screenSize.getHeight()-100);
+
+        SCREEN_WIDTH=this.getWidth();
+        SCREEN_HEIGHT=this.getHeight();
 
         FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
         FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
 
-        this.setResizable(false);
-        this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
+
 
         this.setLayout(new GridLayout(1,1));
 
