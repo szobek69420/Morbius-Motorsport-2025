@@ -7,6 +7,7 @@ import java.awt.image.ImageObserver;
 
 import main.java.org.InputManagement.InputManager;
 import main.java.org.LinearAlgebruh.Vector3;
+import main.java.org.Main;
 import main.java.org.MainFrame.MainFrame;
 import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
@@ -14,11 +15,8 @@ import main.java.org.Rendering.Drawables.SelectionCube;
 import main.java.org.UI.MyChangeListener;
 import main.java.org.UI.RoundedBorder;
 import main.java.org.Updateable.Player;
-import main.java.org.World.BlockColours;
-import main.java.org.World.BlockTypes;
-import main.java.org.World.Chunk;
+import main.java.org.World.*;
 import main.java.org.Rendering.Drawables.Cube;
-import main.java.org.World.ChunkManager;
 
 public class GameScreen extends JPanel {
 
@@ -44,6 +42,10 @@ public class GameScreen extends JPanel {
     //states
     private boolean paused=false;
 
+    private double heldBlockChanged=69.420f;//ha nulla, az azt jelenti, hogy most változott, ha 10, az azt jelenti, hogy 10 másodperce változott
+    public double getHeldBlockChanged(){return heldBlockChanged;}
+    private int currentlyHeldBlock;
+
     public GameScreen(MainFrame mf){
         super();
 
@@ -51,18 +53,18 @@ public class GameScreen extends JPanel {
 
         this.mainFrame=mf;
 
-        fg=new Foreground();
+        fg=new Foreground(this);
         bg=new Background(this);
 
         fg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
         bg.setBounds(0,0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT);
 
-        this.add(bg);
         this.add(fg);
+        this.add(bg);
 
         this.chunkManager=new ChunkManager();
         this.player=new Player();
-
+        this.currentlyHeldBlock=player.getSelectedHotbarSlot();
 
         //---------------------------
         Camera cum=new Camera(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
@@ -137,6 +139,12 @@ public class GameScreen extends JPanel {
         if(!InputManager.MOUSE_RIGHT)
             lastBlockPlace=69;
 
+        if(player.getSelectedHotbarSlot()!=currentlyHeldBlock){
+            currentlyHeldBlock=player.getSelectedHotbarSlot();
+            heldBlockChanged=0.0f;
+        }
+        heldBlockChanged+=deltaTime;
+
         lastBlockBreak+=deltaTime;
         lastBlockPlace+=deltaTime;
         RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
@@ -145,8 +153,8 @@ public class GameScreen extends JPanel {
             selectionKuba.setPosition(selectionPosition);
             int kubaColorInt= BlockColours.blockColours[6*rh.blockType.ordinal()+4].brighter().getRGB();
             kubaColorInt&=0x00FFFFFF;
-            kubaColorInt|=0x88000000;
-            selectionKuba.setColor(new Color(kubaColorInt));
+            kubaColorInt|=0x80000000;
+            selectionKuba.setColor(new Color(kubaColorInt,true));
 
             if(InputManager.MOUSE_LEFT&&lastBlockBreak>0.2&&rh.blockType!=BlockTypes.BEDROCK){
                 lastBlockBreak=0;
@@ -265,7 +273,7 @@ public class GameScreen extends JPanel {
         if(!paused){
             InputManager.showCursor(mainFrame);
             bg.setVisible(false);
-            fg.pause(mainFrame,this);
+            fg.pause(mainFrame);
             paused=true;
         }
     }
@@ -273,8 +281,7 @@ public class GameScreen extends JPanel {
     public void unpause(){
         if(paused){
             InputManager.hideCursor(mainFrame);
-            fg.removeAll();
-            fg.setVisible(true);
+            fg.unPause();
             bg.setVisible(true);
             InputManager.fetchMousePosition();//visszarakja a kurzort a helyére
             InputManager.fetchMousePosition();//törli az előző visszarakás adatait
@@ -285,16 +292,136 @@ public class GameScreen extends JPanel {
 
     private static class Foreground extends JPanel{
 
-        public Foreground(){
+        private GameScreen gameScreen;
+
+        public Foreground(GameScreen gameScreen){
             this.setBackground(new Color(0,0,0,0));
             this.setLayout(new GridLayout(1,1));
             this.setDoubleBuffered(true);
+
+            this.gameScreen=gameScreen;
+
+            this.add(new IngameCanvas(gameScreen));
         }
 
-        public void pause(MainFrame mainFrame, GameScreen gameScreen){
+        public void pause(MainFrame mainFrame){
             this.removeAll();
             this.add(new PauseMenu(mainFrame,gameScreen));
             this.setVisible(true);
+        }
+
+        public void unPause(){
+            this.removeAll();
+            this.add(new IngameCanvas(gameScreen));
+            this.setVisible(true);
+        }
+
+        private static class IngameCanvas extends JPanel{
+            private GameScreen gameScreen;
+
+            private Font font;
+            private FontMetrics fontMetrics;
+
+            private BufferedImage image;
+            private Graphics imageGraphics;
+            private Graphics2D imageGraphics2D;
+
+            public IngameCanvas(GameScreen gameScreen){
+                this.setBackground(new Color(0,0,0,0));
+                this.setLayout(null);
+
+                this.image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_ARGB);
+                this.imageGraphics=image.getGraphics();
+                this.imageGraphics2D=image.createGraphics();
+                imageGraphics2D.setBackground(new Color(0,0,0,0));
+
+                this.font=new Font("Arial",Font.PLAIN,10);
+                imageGraphics.setFont(font);
+                this.fontMetrics= imageGraphics.getFontMetrics();
+
+
+                this.gameScreen=gameScreen;
+            }
+
+            @Override
+            public void paint(Graphics g){
+                //clear
+                imageGraphics2D.clearRect(0,0,MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
+
+                //text
+                imageGraphics.setColor(Color.white);
+
+                //left side
+                Vector3 pos;
+                float pitch=0,yaw=0;
+                if(Camera.main!=null){
+                    pos=Camera.main.getPosition();
+                    pos.set(1,pos.get(1)-0.8f);
+                    pitch=Camera.main.getPitch();
+                    yaw=Camera.main.getYaw();
+                }
+                else
+                    pos=Vector3.zero;
+
+                String posString="Pos: "+(int)pos.get(0) +", "+(int)pos.get(1) +", "+(int)pos.get(2);
+                imageGraphics.drawString(posString,5,10);
+                String lookString="Rot: "+((int)(yaw*100))/100.0f +", "+((int)(pitch*100))/100.0f;
+                imageGraphics.drawString(lookString,5,20);
+
+                //right side
+                String updateString="Updates: "+GameScreen.getLastChunkUpdates();
+                imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,10);
+                String pendingString="Pending: "+GameScreen.getPendingCount();
+                imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
+
+                //held block
+                int slotWidth=40;
+
+                double temp=gameScreen.getHeldBlockChanged();
+                if(temp<2.0){
+                    String blockNameString= BlockNames.blockNames[gameScreen.getPlayer().getHeldBlock().ordinal()];
+
+                    int tempColorInt=0xFFFFFFFF;
+                    if(temp>1.0){
+                        tempColorInt&=0x00FFFFFF;
+                        tempColorInt|=((int)((2.0-temp)*255))<<24;
+                    }
+                    imageGraphics.setColor(new Color(tempColorInt,true));
+                    imageGraphics.drawString(
+                            blockNameString,
+                            MainFrame.FRAME_BUFFER_WIDTH/2-fontMetrics.stringWidth(blockNameString)/2,
+                            MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-25
+                            );
+                }
+
+                //hotbar
+                paintHotbar(image.getGraphics(),slotWidth);
+
+                //last step
+                g.drawImage(image,0,0,MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT,null);
+            }
+
+            private void paintHotbar(Graphics imageGraphics, int slotWidth){
+                int startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2;
+                imageGraphics.setColor(new Color(0,255,255));
+                for(int i=0;i<Player.HOTBAR_SIZE;i++){
+                    imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-19,slotWidth,slotWidth);
+                    startX+=slotWidth;
+                }
+                imageGraphics.setColor(Color.white);
+                imageGraphics.fillRect(
+                        MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+gameScreen.getPlayer().getSelectedHotbarSlot()*slotWidth-1,
+                        MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-20,
+                        slotWidth+2,
+                        slotWidth+2);
+
+                startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+4;
+                for(int i=0;i<Player.HOTBAR_SIZE;i++){
+                    imageGraphics.setColor(BlockColours.blockColours[6*gameScreen.getPlayer().getHotbarBlock(i).ordinal()]);
+                    imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                    startX+=slotWidth;
+                }
+            }
         }
 
         private static class PauseMenu extends JPanel{
@@ -362,9 +489,6 @@ public class GameScreen extends JPanel {
         private Graphics imageGraphics;
         private float[][] depthBuffer;
 
-        private Font font;
-        private FontMetrics fontMetrics;
-
         private GameScreen gameScreen;
 
 
@@ -373,13 +497,9 @@ public class GameScreen extends JPanel {
 
             this.gameScreen=gameScreen;
 
-            this.font=new Font("Arial",Font.PLAIN,10);
-
             image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_RGB);
             imageGraphics=image.getGraphics();
-            imageGraphics.setFont(font);
 
-            this.fontMetrics= imageGraphics.getFontMetrics();
 
             depthBuffer=new float[MainFrame.FRAME_BUFFER_WIDTH][MainFrame.FRAME_BUFFER_HEIGHT];
             for(int i=0;i<MainFrame.FRAME_BUFFER_WIDTH;i++){
@@ -405,36 +525,6 @@ public class GameScreen extends JPanel {
                 }
             }
 
-            //text
-            imageGraphics.setColor(Color.white);
-
-            //left side
-            Vector3 pos;
-            float pitch=0,yaw=0;
-            if(Camera.main!=null){
-                pos=Camera.main.getPosition();
-                pos.set(1,pos.get(1)-0.8f);
-                pitch=Camera.main.getPitch();
-                yaw=Camera.main.getYaw();
-            }
-            else
-                pos=Vector3.zero;
-
-            String posString="Pos: "+(int)pos.get(0) +", "+(int)pos.get(1) +", "+(int)pos.get(2);
-            imageGraphics.drawString(posString,5,10);
-            String lookString="Rot: "+((int)(yaw*100))/100.0f +", "+((int)(pitch*100))/100.0f;
-            imageGraphics.drawString(lookString,5,20);
-
-            //right side
-            String updateString="Updates: "+GameScreen.getLastChunkUpdates();
-            imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,10);
-            String pendingString="Pending: "+GameScreen.getPendingCount();
-            imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
-
-
-            //hotbar
-            paintHotbar(imageGraphics);
-
             //draw screen
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
         }
@@ -452,29 +542,6 @@ public class GameScreen extends JPanel {
             for(int i=0;i<MainFrame.FRAME_BUFFER_WIDTH;i++){
                 for(int j=0;j<MainFrame.FRAME_BUFFER_HEIGHT;j++)
                     depthBuffer[i][j]=clearValue;
-            }
-        }
-
-        private void paintHotbar(Graphics imageGraphics){
-            int slotWidth=40;
-            int startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2;
-            imageGraphics.setColor(Color.BLACK);
-            for(int i=0;i<Player.HOTBAR_SIZE;i++){
-                imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-19,slotWidth,slotWidth);
-                startX+=slotWidth;
-            }
-            imageGraphics.setColor(Color.RED);
-            imageGraphics.fillRect(
-                    MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+gameScreen.getPlayer().getSelectedHotbarSlot()*slotWidth-1,
-                    MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-20,
-                    slotWidth+2,
-                    slotWidth+2);
-
-            startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+4;
-            for(int i=0;i<Player.HOTBAR_SIZE;i++){
-                imageGraphics.setColor(BlockColours.blockColours[6*gameScreen.getPlayer().getHotbarBlock(i).ordinal()]);
-                imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
-                startX+=slotWidth;
             }
         }
     }
