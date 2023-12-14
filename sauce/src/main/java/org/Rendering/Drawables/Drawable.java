@@ -270,7 +270,7 @@ public abstract class Drawable {
         }
     }
 
-    private void drawTriangle(int[] x,int[] y, float[] z,BufferedImage image, float[][] depthBuffer,int colorARGB){
+    protected final void drawTriangle(int[] x,int[] y, float[] z,BufferedImage image, float[][] depthBuffer,int colorARGB){
 
         int temp;
         float tempf;

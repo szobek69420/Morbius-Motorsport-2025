@@ -96,6 +96,8 @@ public class GameScreen extends JPanel {
 
         int[] chunkPos= ChunkManager.getChunk(Camera.main.getPosition());
 
+        if(Camera.main!=null)
+            Camera.main.setRenderPosition(Camera.main.getPosition());
         this.repaint();
 
         if((System.nanoTime()-lastFrame)*0.000000001>1){

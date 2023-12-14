@@ -42,6 +42,7 @@ public class Camera {
 
     private ArrayList<Drawable> drawables;
     private Vector3 pos;
+    private Vector3 renderPosition;
 
     private float pitch,yaw;
     private Vector3 left,up,forward;
@@ -60,6 +61,7 @@ public class Camera {
         yaw=20;
 
         pos= new Vector3(-3,3,-10);
+        renderPosition= new Vector3(-3,3,-10);
 
         GAME_WIDTH=width;
         GAME_HEIGHT=height;
@@ -194,6 +196,9 @@ public class Camera {
     public void setPosition(Vector3 pos){
         this.pos=pos;
     }
+
+    public Vector3 getRenderPositionByReference(){return renderPosition;}
+    public void setRenderPosition(Vector3 renderPosition){this.renderPosition=renderPosition;}
 
     /**
      * Zurückgibt den kopierten Wert des dritten Basisvektors des Kameraraumes
