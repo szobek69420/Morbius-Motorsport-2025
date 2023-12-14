@@ -625,6 +625,9 @@ public class GameScreen extends JPanel {
 
     private static class Background extends JPanel{
 
+        private BufferedImage lastImage;
+        private Graphics lastImageGraphics;
+
         private BufferedImage image;
         private Graphics imageGraphics;
         private float[][] depthBuffer;
@@ -633,12 +636,17 @@ public class GameScreen extends JPanel {
 
 
         public Background(GameScreen gameScreen){
-            this.setBackground(new Color(0,0,0,255));
+            this.setBackground(Camera.CLEAR_COLOR);
 
             this.gameScreen=gameScreen;
 
-            image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_RGB);
+            image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_ARGB);
             imageGraphics=image.getGraphics();
+            ((Graphics2D)imageGraphics).setBackground(new Color(0,0,0,0));
+
+            lastImage=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_ARGB);
+            lastImageGraphics=lastImage.getGraphics();
+            ((Graphics2D)lastImageGraphics).setBackground(new Color(0,0,0,0));
 
 
             depthBuffer=new float[MainFrame.FRAME_BUFFER_WIDTH][MainFrame.FRAME_BUFFER_HEIGHT];
@@ -660,22 +668,35 @@ public class GameScreen extends JPanel {
             for(int i=MainFrame.FRAME_BUFFER_WIDTH/2-2;i<=MainFrame.FRAME_BUFFER_WIDTH/2;i++){
                 for(int j=MainFrame.FRAME_BUFFER_HEIGHT/2-2;j<=MainFrame.FRAME_BUFFER_HEIGHT/2;j++){
                     int temp=image.getRGB(i,j);
-                    temp^=0xFFFFFFFF;
+                    if((temp&0xFF000000)==0)
+                        temp=Camera.CLEAR_COLOR_INT^0xFFFFFFFF;
+                    else
+                        temp^=0xFFFFFFFF;
+                    temp|=0xFF000000;
                     image.setRGB(i,j,temp);
                 }
             }
 
             //draw screen
+            g.drawImage(lastImage, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
+
+            swapBuffers();
         }
 
         private void clearBuffers(){
-            float renderDistance=Camera.RENDER_DISTANCE;
+            clearDepthBuffer(Camera.RENDER_DISTANCE);
+            ((Graphics2D)imageGraphics).clearRect(0,0,MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
+        }
 
-            clearDepthBuffer(renderDistance);
+        private void swapBuffers(){
+            BufferedImage temp=lastImage;
+            lastImage=image;
+            image=temp;
 
-            imageGraphics.setColor(new Color(Camera.CLEAR_COLOR.getRed(),Camera.CLEAR_COLOR.getGreen(),Camera.CLEAR_COLOR.getBlue(),255));
-            imageGraphics.fillRect(0,0,MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT);
+            Graphics temp2=lastImageGraphics;
+            lastImageGraphics=imageGraphics;
+            imageGraphics=temp2;
         }
 
         private void clearDepthBuffer(float clearValue){

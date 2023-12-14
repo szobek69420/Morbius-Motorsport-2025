@@ -55,7 +55,7 @@ public class Chunk extends Drawable {
 
         for(int i=0;i<18;i++){
             for(int j=0;j<18;j++){
-                heightMap[i][j]=30+(int)(19*OpenSimplex2S.noise3_ImproveXY(0, (basedX+i-1) * 0.01, (basedZ+j-1) * 0.023, 0.0));
+                heightMap[i][j]=30+(int)(19*OpenSimplex2S.noise3_ImproveXY(69, (basedX+i-1) * 0.01, (basedZ+j-1) * 0.023, 0.0));
             }
         }
 

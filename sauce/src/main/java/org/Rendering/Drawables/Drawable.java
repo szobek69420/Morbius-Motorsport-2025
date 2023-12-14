@@ -413,8 +413,14 @@ public abstract class Drawable {
                 for(;minY<=maxY;minY++){
                     if(ziterator<depthBuffer[i][minY]){
                         depthBuffer[i][minY]=ziterator;
-                        if(ziterator>Camera.FOG_START)
-                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        if(ziterator>Camera.FOG_START){
+                            //image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                            image.setRGB(
+                                    i,
+                                    minY,
+                                    (colorARGB&0x00FFFFFF)|(((int)(255*(1-(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH)))<<24)
+                                    );
+                        }
                         else
                             image.setRGB(i,minY,colorARGB);
                     }
@@ -486,8 +492,14 @@ public abstract class Drawable {
                 for(;minY<=maxY;minY++){
                     if(ziterator<depthBuffer[i][minY]){
                         depthBuffer[i][minY]=ziterator;
-                        if(ziterator>Camera.FOG_START)
-                            image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                        if(ziterator>Camera.FOG_START){
+                            //image.setRGB(i,minY,colorLerp(colorARGB,Camera.CLEAR_COLOR_INT,(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH));
+                            image.setRGB(
+                                    i,
+                                    minY,
+                                    (colorARGB&0x00FFFFFF)|(((int)(255*(1-(ziterator-Camera.FOG_START)*Camera.ONE_PER_FOG_LENGTH)))<<24)
+                                    );
+                        }
                         else
                             image.setRGB(i,minY,colorARGB);
                     }
