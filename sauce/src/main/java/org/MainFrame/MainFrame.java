@@ -1,6 +1,7 @@
 package main.java.org.MainFrame;
 
 import main.java.org.InputManagement.InputManager;
+import main.java.org.Resizable.Resizable;
 import main.java.org.Screens.GameScreen;
 import main.java.org.Screens.SettingsScreen;
 import main.java.org.Screens.WelcomeScreen;
@@ -20,6 +21,7 @@ public class MainFrame extends JFrame {
     };
 
     private STATE currentState=STATE.MAIN_MENU;
+    private Resizable currentContent=null;
 
     public void setCurrentState(STATE state){
         currentState=state;
@@ -43,6 +45,18 @@ public class MainFrame extends JFrame {
         FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
         FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
 
+        this.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent componentEvent) {
+                SCREEN_WIDTH=componentEvent.getComponent().getWidth();
+                SCREEN_HEIGHT=componentEvent.getComponent().getHeight();
+
+                FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
+                FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
+
+                if(currentContent!=null)
+                    currentContent.onResize();
+            }
+        });
 
 
         this.setLayout(new GridLayout(1,1));
@@ -57,6 +71,7 @@ public class MainFrame extends JFrame {
             switch (currentState){
                 case MAIN_MENU:
                     WelcomeScreen ws=new WelcomeScreen(this);
+                    this.currentContent=ws;
                     this.add(ws);
                     this.setVisible(true);
 
@@ -69,6 +84,7 @@ public class MainFrame extends JFrame {
                         this.setVisible(true);
                     }
 
+                    this.currentContent=null;
                     this.remove(ws);
                     this.setVisible(true);
 
@@ -76,6 +92,7 @@ public class MainFrame extends JFrame {
 
                 case SETTINGS:
                     SettingsScreen ss=new SettingsScreen(this);
+                    this.currentContent=ss;
                     this.add(ss);
                     this.setVisible(true);
 
@@ -88,6 +105,7 @@ public class MainFrame extends JFrame {
                         this.setVisible(true);
                     }
 
+                    this.currentContent=null;
                     this.remove(ss);
                     this.setVisible(true);
 

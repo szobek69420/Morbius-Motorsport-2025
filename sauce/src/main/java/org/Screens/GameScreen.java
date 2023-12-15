@@ -662,6 +662,7 @@ public class GameScreen extends JPanel {
                 public InventorySlotButton(BlockTypes blockType){
 
                     this.setBackground(BlockColours.blockColours[6*blockType.ordinal()]);
+
                     this.setForeground(Color.white);
 
                     this.setBorder(BorderFactory.createLineBorder(new Color(0,255,255),5,false));
@@ -675,7 +676,11 @@ public class GameScreen extends JPanel {
 
                 public HotbarButton(BlockTypes blockType){
 
-                    this.setBackground(BlockColours.blockColours[6*blockType.ordinal()]);
+                    if(blockType==BlockTypes.AIR)
+                        this.setBackground(new Color(0,0,0,50));
+                    else
+                        this.setBackground(BlockColours.blockColours[6*blockType.ordinal()]);
+
                     this.setForeground(Color.white);
 
                     this.setBorder(BorderFactory.createLineBorder(new Color(0,255,255),8,false));

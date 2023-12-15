@@ -59,14 +59,14 @@ public class SettingsScreen extends JPanel implements Resizable {
         fovLabel.setBackground(transparent);
         fovLabel.setForeground(Color.white);
         fovLabel.setFont(normalFont);
-        fovLabel.setBounds(centerX-200,centerY-135,400,20);
+        fovLabel.setBounds(centerX-200,centerY-160,400,20);
         this.add(fovLabel);
 
         JLabel fovValue=new JLabel(""+Settings.fieldOfView,SwingConstants.RIGHT);
         fovValue.setBackground(transparent);
         fovValue.setForeground(Color.white);
         fovValue.setFont(normalFont);
-        fovValue.setBounds(centerX+150,centerY-100,50,20);
+        fovValue.setBounds(centerX+150,centerY-125,50,20);
         this.add(fovValue);
 
         JSlider fovSlider=new JSlider(1,89, Settings.fieldOfView){
@@ -82,7 +82,7 @@ public class SettingsScreen extends JPanel implements Resizable {
         fovSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         fovSlider.setForeground(Color.white);
         fovSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        fovSlider.setBounds(centerX-200,centerY-115,350,50);
+        fovSlider.setBounds(centerX-200,centerY-140,350,50);
         this.add(fovSlider);
 
         //render distance
@@ -90,14 +90,14 @@ public class SettingsScreen extends JPanel implements Resizable {
         renderDistanceLabel.setBackground(transparent);
         renderDistanceLabel.setForeground(Color.white);
         renderDistanceLabel.setFont(normalFont);
-        renderDistanceLabel.setBounds(centerX-200,centerY-50,400,20);
+        renderDistanceLabel.setBounds(centerX-200,centerY-80,400,20);
         this.add(renderDistanceLabel);
 
         JLabel renderDistanceValue=new JLabel(""+Settings.renderDistance,SwingConstants.RIGHT);
         renderDistanceValue.setBackground(transparent);
         renderDistanceValue.setForeground(Color.white);
         renderDistanceValue.setFont(normalFont);
-        renderDistanceValue.setBounds(centerX+150,centerY-15,50,20);
+        renderDistanceValue.setBounds(centerX+150,centerY-45,50,20);
         this.add(renderDistanceValue);
 
         JSlider renderDistanceSlider=new JSlider(2,16, Settings.renderDistance){
@@ -113,15 +113,46 @@ public class SettingsScreen extends JPanel implements Resizable {
         renderDistanceSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         renderDistanceSlider.setForeground(Color.white);
         renderDistanceSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        renderDistanceSlider.setBounds(centerX-200,centerY-30,350,50);
+        renderDistanceSlider.setBounds(centerX-200,centerY-60,350,50);
         this.add(renderDistanceSlider);
+
+        //sensitivity
+        JLabel sensitivityLabel=new JLabel("moose sensiiv",SwingConstants.LEFT);
+        sensitivityLabel.setBackground(transparent);
+        sensitivityLabel.setForeground(Color.white);
+        sensitivityLabel.setFont(normalFont);
+        sensitivityLabel.setBounds(centerX-200,centerY,400,20);
+        this.add(sensitivityLabel);
+
+        JLabel sensitivityValue=new JLabel(""+Settings.sensitivity,SwingConstants.RIGHT);
+        sensitivityValue.setBackground(transparent);
+        sensitivityValue.setForeground(Color.white);
+        sensitivityValue.setFont(normalFont);
+        sensitivityValue.setBounds(centerX+150,centerY+35,50,20);
+        this.add(sensitivityValue);
+
+        JSlider sensitivitySlider=new JSlider(50,200, Settings.sensitivity){
+            @Override
+            public void updateUI() {
+                setUI(new CustomSliderUI(this, new Color(0,255,255), new Color(255, 209,0)));
+            }
+        };
+        sensitivitySlider.addChangeListener((e)-> {
+            Settings.sensitivity=sensitivitySlider.getValue();
+            sensitivityValue.setText(""+sensitivitySlider.getValue());
+        });
+        sensitivitySlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
+        sensitivitySlider.setForeground(Color.white);
+        sensitivitySlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
+        sensitivitySlider.setBounds(centerX-200,centerY+20,350,50);
+        this.add(sensitivitySlider);
 
         //interpolate frames
         JLabel frameInterpolationLabel=new JLabel("interpolate frames",SwingConstants.LEFT);
         frameInterpolationLabel.setBackground(transparent);
         frameInterpolationLabel.setForeground(Color.white);
         frameInterpolationLabel.setFont(normalFont);
-        frameInterpolationLabel.setBounds(centerX-200,centerY+50,400,20);
+        frameInterpolationLabel.setBounds(centerX-200,centerY+100,400,20);
         this.add(frameInterpolationLabel);
 
         JToggleButton frameInterpolationToggle=new JToggleButton(){
@@ -140,7 +171,7 @@ public class SettingsScreen extends JPanel implements Resizable {
             else Settings.interpolateFrames=false;
         });
         frameInterpolationToggle.setSelected(Settings.interpolateFrames);
-        frameInterpolationToggle.setBounds(centerX+180,centerY+50,20,20);
+        frameInterpolationToggle.setBounds(centerX+180,centerY+100,20,20);
         frameInterpolationToggle.setEnabled(true);
         this.add(frameInterpolationToggle);
 

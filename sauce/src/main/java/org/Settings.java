@@ -4,4 +4,5 @@ public class Settings {
     public static int fieldOfView=60;
     public static int renderDistance=4;
     public static boolean interpolateFrames=true;
+    public static int sensitivity=100;
 }

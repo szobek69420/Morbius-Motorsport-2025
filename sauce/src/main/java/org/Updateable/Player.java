@@ -227,8 +227,8 @@ public class Player implements Updateable{
         float up=-InputManager.deltaMouseY;
         float left=-InputManager.deltaMouseX;
 
-        up*=0.05f;
-        left*=0.05f;
+        up*=0.0005f*Settings.sensitivity;
+        left*=0.0005f*Settings.sensitivity;
 
         //System.out.println(deltaTime+" "+up+" "+left);
 
@@ -240,9 +240,9 @@ public class Player implements Updateable{
         else if(up>89.9f)
             up=89.9f;
 
-        if(left<-360)
+        if(left<-180)
             left+=360;
-        if(left>360)
+        if(left>180)
             left-=360;
 
         Camera.main.setPitch(up);

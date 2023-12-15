@@ -8,8 +8,8 @@ public class BlockNames {
             "grass",
             "log",
             "leaves",
-            "bing chilling",
+            "zhongguo",
             "bedrock",
-            "geh"
+            "sus"
     };
 }
