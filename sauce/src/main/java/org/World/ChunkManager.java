@@ -134,10 +134,39 @@ public class ChunkManager {
         }
     }
 
-    public void calculatePhysics(double deltaTime,int playerChunkX, int playerChunkZ){
-        for(Chunk chomk:loadedChunks){
-            if(Math.abs(chomk.chunkX-playerChunkX)<2&&Math.abs(chomk.chunkZ-playerChunkZ)<2)
+    public void calculatePhysics(double deltaTime,Vector3 pos){
+
+        int[] temp=getChunk(pos);
+        int playerChunkX=temp[0];
+        int playerChunkZ=temp[1];
+        int playerPosInChunkX=(int)(0.5f+pos.get(0)-16.0f*playerChunkX);
+        int playerPosInChunkZ=(int)(0.5f+pos.get(2)-16.0f*playerChunkZ);
+
+        for(Chunk chomk : loadedChunks){
+            if(chomk.chunkX==playerChunkX&&chomk.chunkZ==playerChunkZ){
                 chomk.calculatePhysics(deltaTime);
+            }
+        }
+
+        int neighbourX=playerChunkX;
+        int neighbourZ=playerChunkZ;
+
+        if(playerPosInChunkX==0)
+            neighbourX--;
+        if(playerPosInChunkX==15)
+            neighbourX++;
+        if(playerPosInChunkZ==0)
+            neighbourZ--;
+        if(playerPosInChunkZ==15)
+            neighbourZ++;
+
+        if(neighbourZ==playerChunkZ&&neighbourX==playerChunkX)
+            return;
+
+        for(Chunk chomk : loadedChunks){
+            if(chomk.chunkX==neighbourX&&chomk.chunkZ==neighbourZ){
+                chomk.calculatePhysics(deltaTime);
+            }
         }
     }
 

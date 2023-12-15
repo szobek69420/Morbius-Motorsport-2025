@@ -142,7 +142,7 @@ public class GameScreen extends JPanel {
             player.update(deltaTime);
         }
 
-        this.chunkManager.calculatePhysics(deltaTime,chunkPos[0],chunkPos[1]);
+        this.chunkManager.calculatePhysics(deltaTime,Camera.main.getPosition());
 
         if(!InputManager.MOUSE_LEFT)
             lastBlockBreak=69;
@@ -758,11 +758,11 @@ public class GameScreen extends JPanel {
 
             image=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_ARGB);
             imageGraphics=image.getGraphics();
-            ((Graphics2D)imageGraphics).setBackground(new Color(0,0,0,0));
+            ((Graphics2D)imageGraphics).setBackground(new Color(Camera.CLEAR_COLOR_INT&0x00FFFFFF,true));
 
             lastImage=new BufferedImage(MainFrame.FRAME_BUFFER_WIDTH,MainFrame.FRAME_BUFFER_HEIGHT,BufferedImage.TYPE_INT_ARGB);
             lastImageGraphics=lastImage.getGraphics();
-            ((Graphics2D)lastImageGraphics).setBackground(new Color(0,0,0,0));
+            ((Graphics2D)lastImageGraphics).setBackground(new Color(Camera.CLEAR_COLOR_INT&0x00FFFFFF,true));
 
 
             depthBuffer=new float[MainFrame.FRAME_BUFFER_WIDTH][MainFrame.FRAME_BUFFER_HEIGHT];
@@ -784,10 +784,7 @@ public class GameScreen extends JPanel {
             for(int i=MainFrame.FRAME_BUFFER_WIDTH/2-2;i<=MainFrame.FRAME_BUFFER_WIDTH/2;i++){
                 for(int j=MainFrame.FRAME_BUFFER_HEIGHT/2-2;j<=MainFrame.FRAME_BUFFER_HEIGHT/2;j++){
                     int temp=image.getRGB(i,j);
-                    if((temp&0xFF000000)==0)
-                        temp=Camera.CLEAR_COLOR_INT^0xFFFFFFFF;
-                    else
-                        temp^=0xFFFFFFFF;
+                    temp^=0xFFFFFFFF;
                     temp|=0xFF000000;
                     image.setRGB(i,j,temp);
                 }

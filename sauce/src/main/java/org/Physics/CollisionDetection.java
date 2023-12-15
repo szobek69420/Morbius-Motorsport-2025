@@ -4,6 +4,8 @@ import main.java.org.LinearAlgebruh.Vector3;
 import main.java.org.World.ChunkManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Das Physiksystem
@@ -63,10 +65,36 @@ public class CollisionDetection {
      * @param deltaTime die Zeit, die seit dem letzten Frame verging.
      */
     public void CalculatePhysics(double deltaTime){
+        final int length=kinematic.size();
+        List<ColliderSortHelper> array=new ArrayList<>();
+
         for(AABB aabb:nonKinematic){
-            for (AABB aabb2:kinematic){
-                AABB.resolveCollision(aabb,aabb2);
+            Vector3 currentNonKinematicPos=aabb.getPositionByReference();
+            for(int i=0;i<length;i++){
+                array.add(new ColliderSortHelper(i,Vector3.sqrMagnitude(Vector3.difference(currentNonKinematicPos,kinematic.get(i).getPositionByReference()))));
             }
+            Collections.sort(array);
+
+            for (ColliderSortHelper csh : array){
+                AABB.resolveCollision(aabb,kinematic.get(csh.index));
+            }
+        }
+    }
+
+    private static class ColliderSortHelper implements Comparable<ColliderSortHelper>{
+        public int index;
+        public float distance;
+
+        public ColliderSortHelper(int index, float distance){
+            this.index=index;
+            this.distance=distance;
+        }
+
+        @Override
+        public int compareTo(ColliderSortHelper o) {
+            if(this.distance<o.distance)
+                return -69;
+            return 69;
         }
     }
 }
