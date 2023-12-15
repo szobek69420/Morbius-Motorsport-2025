@@ -35,7 +35,6 @@ public class MainFrame extends JFrame {
         super(name);
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setResizable(false);
         this.setSize((int)screenSize.getWidth()-100,(int)screenSize.getHeight()-100);
 
         SCREEN_WIDTH=this.getWidth();
@@ -95,6 +94,8 @@ public class MainFrame extends JFrame {
                     break;
 
                 case GAME:
+                    this.setResizable(false);
+
                     GameScreen gs=new GameScreen(this);
                     this.add(gs);
 
@@ -181,6 +182,7 @@ public class MainFrame extends JFrame {
                     this.removeMouseWheelListener(mwl);
                     this.removeFocusListener(fl);
 
+                    this.setResizable(true);
                     this.setVisible(true);
 
                     break;

@@ -51,6 +51,10 @@ public class InputManager  {
         robot.mouseMove(basedMouseX,basedMouseY);
     }
 
+    public static Point getMousePosition(){
+        return MouseInfo.getPointerInfo().getLocation();
+    }
+
     /**
      * Macht den Kursor unsehbar
      * @param frame das JFrame, in dem das Kursor unsehbar sein soll

@@ -5,6 +5,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
@@ -117,7 +119,7 @@ public class GameScreen extends JPanel {
         if(paused)
             return;
 
-        if(InputManager.ESCAPE){
+        if(InputManager.ESCAPE&&!inventoryOpen){
             pause(false);
             mainFrame.setVisible(true);
         }
@@ -149,7 +151,7 @@ public class GameScreen extends JPanel {
 
         if(!InputManager.E)
             canChangeInventoryState=true;
-        if(InputManager.E&&canChangeInventoryState){
+        if(InputManager.E&&!inventoryOpen&&canChangeInventoryState){
             canChangeInventoryState=false;
             inventory();
         }
@@ -484,6 +486,7 @@ public class GameScreen extends JPanel {
         private static class Inventory extends JPanel{
             public static final int INVENTORY_WIDTH=5;
             public static final int INVENTORY_HEIGHT=3;
+            public static final int SLOT_WIDTH=80;
             public static final BlockTypes[] INVENTORY_CONTENT=new BlockTypes[]{
                     BlockTypes.BEDROCK,BlockTypes.DIRT,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,
                     BlockTypes.GEH,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,
@@ -492,7 +495,14 @@ public class GameScreen extends JPanel {
 
             private GameScreen gameScreen;
 
+            private BufferedImage buffer;
+            private Graphics bufferGraphics;
+
             private Font font;
+
+            private BlockTypes blockSelected;
+            private int hotbarSlotSelected;
+            private HotbarButton hotbarButtonSelected;
 
 
             public Inventory(GameScreen gameScreen){
@@ -506,46 +516,137 @@ public class GameScreen extends JPanel {
 
                 this.gameScreen=gameScreen;
 
+                this.buffer=new BufferedImage(MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT,BufferedImage.TYPE_INT_ARGB);
+                bufferGraphics=buffer.getGraphics();
+                ((Graphics2D)bufferGraphics).setBackground(new Color(0,0,0,0));
+
+                this.blockSelected=BlockTypes.AIR;
+                this.hotbarSlotSelected=-1;
+                this.hotbarButtonSelected=null;
+
                 fillScreen();
                 this.setVisible(true);
             }
 
             @Override
             public void paint(Graphics g){
-                int slotWidth=80;
-                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2-10;
-                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*slotWidth/2-50;
-
-                g.setColor(new Color(0,0,0,150));
-                g.fillRoundRect(startX,startY,INVENTORY_WIDTH*slotWidth+20,INVENTORY_HEIGHT*slotWidth+60,20,20);
-                g.setColor(Color.white);
-                g.setFont(this.font);
-                g.drawString("List of blocks:",startX+17,startY+35);
-
                 super.paint(g);
+
+                ((Graphics2D)bufferGraphics).clearRect(0,0,MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT);
+
+                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*SLOT_WIDTH/2-10;
+                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*SLOT_WIDTH/2-50;
+
+                bufferGraphics.setColor(Color.white);
+                bufferGraphics.setFont(this.font);
+                bufferGraphics.drawString("List of blocks:",startX+17,startY+35);
+
+                //Point p=InputManager.getMousePosition();
+                //bufferGraphics.fillRect(p.x-19,p.y-40,20,20);
+                if(blockSelected!=BlockTypes.AIR){
+                    Point p=InputManager.getMousePosition();
+                    bufferGraphics.setColor(BlockColours.blockColours[6*blockSelected.ordinal()]);
+                    bufferGraphics.fillRect(p.x-44,p.y-65,SLOT_WIDTH-10,SLOT_WIDTH-10);
+                }
+
+                g.drawImage(buffer,0,0,MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT,this);
             }
 
             private void fillScreen(){
-                int slotWidth=80;
-                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2+5;
-                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*slotWidth/2+5;
+                int startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*SLOT_WIDTH/2+5;
+                int startY=MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*SLOT_WIDTH/2+5;
 
+                //inventory
                 for(int i=0;i<INVENTORY_HEIGHT;i++){
                     for(int j=0;j<INVENTORY_WIDTH;j++){
 
-                        if(INVENTORY_CONTENT[i*INVENTORY_WIDTH+j]==BlockTypes.AIR)
+                        final BlockTypes tempType=INVENTORY_CONTENT[i*INVENTORY_WIDTH+j];
+
+                        if(tempType==BlockTypes.AIR)
                             continue;
 
-                        InventorySlotButton button=new InventorySlotButton(INVENTORY_CONTENT[i*INVENTORY_WIDTH+j]);
-                        button.setBounds(startX,startY,slotWidth-10,slotWidth-10);
+                        InventorySlotButton button=new InventorySlotButton(tempType);
+                        button.setBounds(startX,startY,SLOT_WIDTH-10,SLOT_WIDTH-10);
+
+                        button.addChangeListener((change)->{
+                            ButtonModel butt=((JButton)change.getSource()).getModel();
+                            if(butt.isPressed()){
+                                blockSelected=tempType;
+                            }
+                            else{
+                                if(hotbarSlotSelected!=-1){
+                                    gameScreen.getPlayer().setHotbarBlock(hotbarSlotSelected,blockSelected);
+                                    hotbarButtonSelected.setBackground(BlockColours.blockColours[6*blockSelected.ordinal()]);
+                                }
+                                blockSelected=BlockTypes.AIR;
+                            }
+                        });
+
                         this.add(button);
                         button.setVisible(true);
 
-                        startX+=slotWidth;
+                        startX+=SLOT_WIDTH;
                     }
-                    startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*slotWidth/2+5;
-                    startY+=slotWidth;
+                    startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*SLOT_WIDTH/2+5;
+                    startY+=SLOT_WIDTH;
                 }
+
+                //hotbar
+                startX=MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*SLOT_WIDTH/2;
+                for(int i=0;i<Player.HOTBAR_SIZE;i++){
+                    final int index=i;
+                    final BlockTypes tempType=gameScreen.getPlayer().getHotbarBlock(index);
+                    HotbarButton button=new HotbarButton(tempType);
+                    button.setBounds(startX,MainFrame.SCREEN_HEIGHT-SLOT_WIDTH-38,SLOT_WIDTH,SLOT_WIDTH);
+
+                    button.addMouseListener(new MouseListener() {
+                        public void mouseClicked(MouseEvent e) {}
+                        public void mousePressed(MouseEvent e) {}
+                        public void mouseReleased(MouseEvent e) {}
+                        public void mouseEntered(MouseEvent e) {hotbarSlotSelected=index; hotbarButtonSelected=button;}
+                        public void mouseExited(MouseEvent e) {
+                            if(hotbarSlotSelected==index){//ha felülírná egy másik hotbarslot, akkor azt ne törölje
+                                hotbarButtonSelected=null;
+                                hotbarSlotSelected=-1;
+                            }
+                        }
+                    });
+
+                    this.add(button);
+                    button.setVisible(true);
+
+                    startX+=SLOT_WIDTH;
+                }
+
+                //close button
+                JButton closeButton=new JButton("X");
+                closeButton.setBackground(Color.red);
+                closeButton.setForeground(Color.white);
+                closeButton.setBorder(BorderFactory.createLineBorder(Color.white,2));
+                closeButton.setBounds(
+                        MainFrame.SCREEN_WIDTH/2+INVENTORY_WIDTH*SLOT_WIDTH/2-35,
+                        MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*SLOT_WIDTH/2-37,
+                        30,
+                        25
+                        );
+                closeButton.addActionListener((e)->{gameScreen.inventory();});
+                this.add(closeButton);
+
+                //background
+                JPanel background=new JPanel(){
+                    @Override
+                    public void paintComponent(Graphics g){
+                        g.setColor(new Color(0,0,0,150));
+                        g.fillRoundRect(0,0,this.getWidth()-1,this.getHeight(),20,20);
+                    }
+                };
+                background.setBounds(
+                        MainFrame.SCREEN_WIDTH/2-INVENTORY_WIDTH*SLOT_WIDTH/2-10,
+                        MainFrame.SCREEN_HEIGHT/2-INVENTORY_HEIGHT*SLOT_WIDTH/2-50,
+                        INVENTORY_WIDTH*SLOT_WIDTH+20,
+                        INVENTORY_HEIGHT*SLOT_WIDTH+60
+                        );
+                this.add(background);
             }
 
             private static class InventorySlotButton extends JButton{
@@ -556,6 +657,21 @@ public class GameScreen extends JPanel {
                     this.setForeground(Color.white);
 
                     this.setBorder(BorderFactory.createLineBorder(new Color(0,255,255),5,false));
+
+
+                    this.setVisible(true);
+                }
+            }
+
+            private static class HotbarButton extends JButton{
+
+                public HotbarButton(BlockTypes blockType){
+
+                    this.setBackground(BlockColours.blockColours[6*blockType.ordinal()]);
+                    this.setForeground(Color.white);
+
+                    this.setBorder(BorderFactory.createLineBorder(new Color(0,255,255),8,false));
+
 
                     this.setVisible(true);
                 }

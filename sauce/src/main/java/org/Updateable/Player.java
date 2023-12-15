@@ -66,6 +66,7 @@ public class Player implements Updateable{
     public int getSelectedHotbarSlot(){return selectedHotbarSlot;}
     public BlockTypes getHeldBlock(){return hotbarSlots[selectedHotbarSlot];}
     public BlockTypes getHotbarBlock(int index){return hotbarSlots[index];}
+    public void setHotbarBlock(int index, BlockTypes block){this.hotbarSlots[index]=block;}
     private HeldBlock heldBlock;
 
     /**
