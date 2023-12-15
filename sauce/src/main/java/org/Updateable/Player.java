@@ -83,7 +83,7 @@ public class Player implements Updateable{
 
         currentFov=BASED_FOV;
 
-        hotbarSlots=new BlockTypes[]{BlockTypes.BEDROCK,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,BlockTypes.GEH};
+        hotbarSlots=new BlockTypes[]{BlockTypes.STONE,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR};
         selectedHotbarSlot=0;
         lastScrollCount=InputManager.SCROLL_COUNT;
 

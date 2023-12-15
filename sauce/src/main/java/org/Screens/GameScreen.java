@@ -17,6 +17,7 @@ import main.java.org.MainFrame.MainFrame;
 import main.java.org.Physics.RaycastHit;
 import main.java.org.Rendering.Camera.Camera;
 import main.java.org.Rendering.Drawables.SelectionCube;
+import main.java.org.Settings;
 import main.java.org.UI.MyChangeListener;
 import main.java.org.UI.RoundedBorder;
 import main.java.org.Updateable.Player;
@@ -437,7 +438,7 @@ public class GameScreen extends JPanel {
                 int slotWidth=40;
 
                 double temp=gameScreen.getHeldBlockChanged();
-                if(temp<2.0){
+                if(temp<2.0&&gameScreen.getPlayer().getHeldBlock()!=BlockTypes.AIR){
                     String blockNameString= BlockNames.blockNames[gameScreen.getPlayer().getHeldBlock().ordinal()];
 
                     int tempColorInt=0xFFFFFFFF;
@@ -476,8 +477,15 @@ public class GameScreen extends JPanel {
 
                 startX=MainFrame.FRAME_BUFFER_WIDTH/2-Player.HOTBAR_SIZE*slotWidth/2+4;
                 for(int i=0;i<Player.HOTBAR_SIZE;i++){
-                    imageGraphics.setColor(BlockColours.blockColours[6*gameScreen.getPlayer().getHotbarBlock(i).ordinal()]);
-                    imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                    if(this.gameScreen.getPlayer().getHotbarBlock(i)==BlockTypes.AIR){
+                        imageGraphics2D.clearRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                        imageGraphics.setColor(new Color(0,0,0,50));
+                        imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                    }
+                    else{
+                        imageGraphics.setColor(BlockColours.blockColours[6*gameScreen.getPlayer().getHotbarBlock(i).ordinal()]);
+                        imageGraphics.fillRect(startX,MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-15,slotWidth-8,slotWidth-8);
+                    }
                     startX+=slotWidth;
                 }
             }
@@ -791,7 +799,8 @@ public class GameScreen extends JPanel {
             }
 
             //draw screen
-            g.drawImage(lastImage, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
+            if(Settings.interpolateFrames)
+                g.drawImage(lastImage, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
             g.drawImage(image, 0, 0, MainFrame.SCREEN_WIDTH, MainFrame.SCREEN_HEIGHT, null);
 
             swapBuffers();

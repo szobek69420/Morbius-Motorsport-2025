@@ -59,14 +59,14 @@ public class SettingsScreen extends JPanel implements Resizable {
         fovLabel.setBackground(transparent);
         fovLabel.setForeground(Color.white);
         fovLabel.setFont(normalFont);
-        fovLabel.setBounds(centerX-200,centerY-100,400,20);
+        fovLabel.setBounds(centerX-200,centerY-135,400,20);
         this.add(fovLabel);
 
         JLabel fovValue=new JLabel(""+Settings.fieldOfView,SwingConstants.RIGHT);
         fovValue.setBackground(transparent);
         fovValue.setForeground(Color.white);
         fovValue.setFont(normalFont);
-        fovValue.setBounds(centerX+150,centerY-65,50,20);
+        fovValue.setBounds(centerX+150,centerY-100,50,20);
         this.add(fovValue);
 
         JSlider fovSlider=new JSlider(1,89, Settings.fieldOfView){
@@ -82,7 +82,7 @@ public class SettingsScreen extends JPanel implements Resizable {
         fovSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         fovSlider.setForeground(Color.white);
         fovSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        fovSlider.setBounds(centerX-200,centerY-80,350,50);
+        fovSlider.setBounds(centerX-200,centerY-115,350,50);
         this.add(fovSlider);
 
         //render distance
@@ -90,14 +90,14 @@ public class SettingsScreen extends JPanel implements Resizable {
         renderDistanceLabel.setBackground(transparent);
         renderDistanceLabel.setForeground(Color.white);
         renderDistanceLabel.setFont(normalFont);
-        renderDistanceLabel.setBounds(centerX-200,centerY,400,20);
+        renderDistanceLabel.setBounds(centerX-200,centerY-50,400,20);
         this.add(renderDistanceLabel);
 
         JLabel renderDistanceValue=new JLabel(""+Settings.renderDistance,SwingConstants.RIGHT);
         renderDistanceValue.setBackground(transparent);
         renderDistanceValue.setForeground(Color.white);
         renderDistanceValue.setFont(normalFont);
-        renderDistanceValue.setBounds(centerX+150,centerY+35,50,20);
+        renderDistanceValue.setBounds(centerX+150,centerY-15,50,20);
         this.add(renderDistanceValue);
 
         JSlider renderDistanceSlider=new JSlider(2,16, Settings.renderDistance){
@@ -113,9 +113,36 @@ public class SettingsScreen extends JPanel implements Resizable {
         renderDistanceSlider.setBackground(new Color(transparent.getRGB()|0xFF000000));
         renderDistanceSlider.setForeground(Color.white);
         renderDistanceSlider.setDoubleBuffered(true);//kell, hogy az átlátszó háttér ne basszon el mindent
-        renderDistanceSlider.setBounds(centerX-200,centerY+20,350,50);
+        renderDistanceSlider.setBounds(centerX-200,centerY-30,350,50);
         this.add(renderDistanceSlider);
 
+        //interpolate frames
+        JLabel frameInterpolationLabel=new JLabel("interpolate frames",SwingConstants.LEFT);
+        frameInterpolationLabel.setBackground(transparent);
+        frameInterpolationLabel.setForeground(Color.white);
+        frameInterpolationLabel.setFont(normalFont);
+        frameInterpolationLabel.setBounds(centerX-200,centerY+50,400,20);
+        this.add(frameInterpolationLabel);
+
+        JToggleButton frameInterpolationToggle=new JToggleButton(){
+            protected void paintComponent(Graphics g){
+                g.setColor(new Color(0,255,255));
+                g.fillRect(0,0,this.getWidth()-1,this.getHeight()-1);
+                if(this.isSelected())
+                    g.setColor(new Color(255,209,0));
+                else
+                    g.setColor(Color.black);
+                g.fillRect(3,3,this.getWidth()-7,this.getHeight()-7);
+            }
+        };
+        frameInterpolationToggle.addActionListener((e)->{
+            if(((JToggleButton)e.getSource()).isSelected()) Settings.interpolateFrames=true;
+            else Settings.interpolateFrames=false;
+        });
+        frameInterpolationToggle.setSelected(Settings.interpolateFrames);
+        frameInterpolationToggle.setBounds(centerX+180,centerY+50,20,20);
+        frameInterpolationToggle.setEnabled(true);
+        this.add(frameInterpolationToggle);
 
         //save
         JButton saveButton = new JButton("back");
