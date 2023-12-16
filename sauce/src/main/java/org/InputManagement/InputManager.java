@@ -40,6 +40,11 @@ public class InputManager  {
      */
     public static int deltaMouseY=0;
 
+
+    public static void setMouseAnchor(int x, int y){
+        basedMouseX=x;
+        basedMouseY=y;
+    }
     /**
      * Speichert wie viel die Maus sich bewegt ist und stellt die Mausposition zurück
      */
@@ -112,6 +117,10 @@ public class InputManager  {
     /**
      * @hidden
      */
+    public static boolean M=false;
+    /**
+     * @hidden
+     */
     public static boolean E=false;
     /**
      * @hidden
@@ -163,6 +172,7 @@ public class InputManager  {
                 case KeyEvent.VK_S -> S = true;
                 case KeyEvent.VK_D -> D = true;
                 case KeyEvent.VK_C -> C = true;
+                case KeyEvent.VK_M -> M = true;
                 case KeyEvent.VK_E -> E = true;
                 case KeyEvent.VK_SPACE->SPACE=true;
                 case KeyEvent.VK_SHIFT->L_SHIT=true;
@@ -187,6 +197,7 @@ public class InputManager  {
                 case KeyEvent.VK_S -> S = false;
                 case KeyEvent.VK_D -> D = false;
                 case KeyEvent.VK_C -> C = false;
+                case KeyEvent.VK_M -> M = false;
                 case KeyEvent.VK_E -> E = false;
                 case KeyEvent.VK_SPACE->SPACE=false;
                 case KeyEvent.VK_SHIFT->L_SHIT=false;

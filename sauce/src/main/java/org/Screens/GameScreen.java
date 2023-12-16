@@ -40,8 +40,6 @@ public class GameScreen extends JPanel {
 
     private static int lastFrameCount=0;
     public static int getFrameCount(){return lastFrameCount;}
-    private static int lastPendingChunks=0;
-    public static int getPendingCount(){return lastPendingChunks;}
     private static int lastChunkUpdates=0;
     public static int getLastChunkUpdates(){return lastChunkUpdates;}
 
@@ -113,7 +111,6 @@ public class GameScreen extends JPanel {
             frameCount=0;
         }
         frameCount++;
-        lastPendingChunks=this.chunkManager.getPendingCount();
     }
 
     public void physicsFrame(double deltaTime, boolean chunkLoad){
@@ -130,6 +127,8 @@ public class GameScreen extends JPanel {
         if(chunkLoad){
             this.chunkManager.unloadChunk(chunkPos[0],chunkPos[1]);
             this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
+            this.chunkManager.loadChunk(chunkPos[0],chunkPos[1], player);
+            this.chunkManager.updateChunks(player);
             this.chunkManager.updateChunks(player);
             Vector3 tempVector69=selectionKuba.getPositionByReference().copy();
             selectionKuba.setPosition(Camera.main.getPosition());
@@ -141,9 +140,11 @@ public class GameScreen extends JPanel {
         if(!inventoryOpen){
             InputManager.fetchMousePosition();
             player.update(deltaTime);
+
+            if(!player.isMorbin())
+                this.chunkManager.calculatePhysics(deltaTime,Camera.main.getPosition());
         }
 
-        this.chunkManager.calculatePhysics(deltaTime,Camera.main.getPosition());
 
         if(!InputManager.MOUSE_LEFT)
             lastBlockBreak=69;
@@ -165,7 +166,7 @@ public class GameScreen extends JPanel {
 
         lastBlockBreak+=deltaTime;
         lastBlockPlace+=deltaTime;
-        RaycastHit rh=this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
+        RaycastHit rh=player.isMorbin()?null:this.chunkManager.gaycast(Camera.main.getPosition(),Camera.main.getForward(),5);
         if(rh!=null){
             Vector3 selectionPosition=new Vector3(rh.chunkX*16+rh.x,rh.y,rh.chunkZ*16+rh.z);
             selectionKuba.setPosition(selectionPosition);
@@ -428,34 +429,53 @@ public class GameScreen extends JPanel {
                 String lookString="Rot: "+((int)(yaw*100))/100.0f +", "+((int)(pitch*100))/100.0f;
                 imageGraphics.drawString(lookString,5,20);
 
+                String moveString="WASD - move";
+                imageGraphics.drawString(moveString,5,MainFrame.FRAME_BUFFER_HEIGHT-75);
+                String jumpString="Space - ascend";
+                imageGraphics.drawString(jumpString,5,MainFrame.FRAME_BUFFER_HEIGHT-65);
+                String descendString="Lshift - descend";
+                imageGraphics.drawString(descendString,5,MainFrame.FRAME_BUFFER_HEIGHT-55);
+                String zoomString="C - zoom";
+                imageGraphics.drawString(zoomString,5,MainFrame.FRAME_BUFFER_HEIGHT-45);
+                String morbString=gameScreen.getPlayer().isMorbin()?"M - unmorb":"M - morb";
+                imageGraphics.drawString(morbString,5,MainFrame.FRAME_BUFFER_HEIGHT-35);
+                String pauseString="Escape - pause";
+                imageGraphics.drawString(pauseString,5,MainFrame.FRAME_BUFFER_HEIGHT-25);
+
                 //right side
+                String renderDistanceString="Render distance: "+Settings.renderDistance;
+                imageGraphics.drawString(renderDistanceString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(renderDistanceString)-10,10);
+                String loadedString="Loaded: "+gameScreen.chunkManager.getLoadedCount();
+                imageGraphics.drawString(loadedString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(loadedString)-10,20);
                 String updateString="Updates: "+GameScreen.getLastChunkUpdates();
-                imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,10);
-                String pendingString="Pending: "+GameScreen.getPendingCount();
-                imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,20);
+                imageGraphics.drawString(updateString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(updateString)-10,30);
+                String pendingString="Pending: "+gameScreen.chunkManager.getPendingCount();
+                imageGraphics.drawString(pendingString,MainFrame.FRAME_BUFFER_WIDTH-fontMetrics.stringWidth(pendingString)-10,40);
 
-                //held block
-                int slotWidth=40;
+                if(!gameScreen.getPlayer().isMorbin()){
+                    //held block
+                    int slotWidth=40;
 
-                double temp=gameScreen.getHeldBlockChanged();
-                if(temp<2.0&&gameScreen.getPlayer().getHeldBlock()!=BlockTypes.AIR){
-                    String blockNameString= BlockNames.blockNames[gameScreen.getPlayer().getHeldBlock().ordinal()];
+                    double temp=gameScreen.getHeldBlockChanged();
+                    if(temp<2.0&&gameScreen.getPlayer().getHeldBlock()!=BlockTypes.AIR){
+                        String blockNameString= BlockNames.blockNames[gameScreen.getPlayer().getHeldBlock().ordinal()];
 
-                    int tempColorInt=0xFFFFFFFF;
-                    if(temp>1.0){
-                        tempColorInt&=0x00FFFFFF;
-                        tempColorInt|=((int)((2.0-temp)*255))<<24;
+                        int tempColorInt=0xFFFFFFFF;
+                        if(temp>1.0){
+                            tempColorInt&=0x00FFFFFF;
+                            tempColorInt|=((int)((2.0-temp)*255))<<24;
+                        }
+                        imageGraphics.setColor(new Color(tempColorInt,true));
+                        imageGraphics.drawString(
+                                blockNameString,
+                                MainFrame.FRAME_BUFFER_WIDTH/2-fontMetrics.stringWidth(blockNameString)/2,
+                                MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-25
+                        );
                     }
-                    imageGraphics.setColor(new Color(tempColorInt,true));
-                    imageGraphics.drawString(
-                            blockNameString,
-                            MainFrame.FRAME_BUFFER_WIDTH/2-fontMetrics.stringWidth(blockNameString)/2,
-                            MainFrame.FRAME_BUFFER_HEIGHT-slotWidth-25
-                            );
-                }
 
-                //hotbar
-                paintHotbar(image.getGraphics(),slotWidth);
+                    //hotbar
+                    paintHotbar(image.getGraphics(),slotWidth);
+                }
 
                 //last step
                 g.drawImage(image,0,0,MainFrame.SCREEN_WIDTH,MainFrame.SCREEN_HEIGHT,null);
@@ -496,9 +516,9 @@ public class GameScreen extends JPanel {
             public static final int INVENTORY_HEIGHT=3;
             public static final int SLOT_WIDTH=80;
             public static final BlockTypes[] INVENTORY_CONTENT=new BlockTypes[]{
-                    BlockTypes.BEDROCK,BlockTypes.DIRT,BlockTypes.STONE,BlockTypes.GRASS,BlockTypes.YELLOW,
-                    BlockTypes.GEH,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,
-                    BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR
+                    BlockTypes.BEDROCK,BlockTypes.DIRT,BlockTypes.STONE,BlockTypes.SAND,BlockTypes.COCKTUS,
+                    BlockTypes.DIRT,BlockTypes.GRASS,BlockTypes.LOG,BlockTypes.LEAVES,BlockTypes.GEH,
+                    BlockTypes.YELLOW,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR
             };
 
             private GameScreen gameScreen;
@@ -792,7 +812,8 @@ public class GameScreen extends JPanel {
             clearBuffers();
 
             Camera.main.render(image,depthBuffer);
-            gameScreen.player.renderHeldBlock(image,depthBuffer,Camera.main);
+            if(!gameScreen.getPlayer().isMorbin())
+                gameScreen.getPlayer().renderHeldBlock(image,depthBuffer,Camera.main);
 
             for(int i=MainFrame.FRAME_BUFFER_WIDTH/2-2;i<=MainFrame.FRAME_BUFFER_WIDTH/2;i++){
                 for(int j=MainFrame.FRAME_BUFFER_HEIGHT/2-2;j<=MainFrame.FRAME_BUFFER_HEIGHT/2;j++){

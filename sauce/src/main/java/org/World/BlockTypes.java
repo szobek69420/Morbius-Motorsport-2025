@@ -5,9 +5,12 @@ public enum BlockTypes {
     STONE,
     DIRT,
     GRASS,
+    SNOW,
+    SAND,
     LOG,
     LEAVES,
     YELLOW,
     BEDROCK,
     GEH,
+    COCKTUS
 }

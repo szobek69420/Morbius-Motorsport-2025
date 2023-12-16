@@ -24,6 +24,9 @@ public class Chunk extends Drawable {
 
     private BlockTypes[][][] blocks;
 
+    private Biomes.BiomeTypes[][] biomeMap;
+    private float[][] terrainMap;
+    private int[][] mountainLineMap;
     private int[][] heightMap;
 
     private final CollisionDetection cd;
@@ -34,6 +37,13 @@ public class Chunk extends Drawable {
 
         this.pos=new Vector3(chunkX*16,0,chunkZ*16);
         this.scale=new Vector3(1,1,1);
+
+        this.blocks=new BlockTypes[50][16][16];
+
+        this.biomeMap=new Biomes.BiomeTypes[18][18];
+        this.terrainMap=new float[18][18];
+        this.mountainLineMap=new int[18][18];
+        this.heightMap=new int[18][18];
 
         cd=new CollisionDetection();
         player.addToPhysics(cd);
@@ -51,13 +61,18 @@ public class Chunk extends Drawable {
         int basedX=chunkX*16;
         int basedZ=chunkZ*16;
 
-        blocks=new BlockTypes[50][16][16];
-
-        heightMap=new int[18][18];
 
         for(int i=0;i<18;i++){
             for(int j=0;j<18;j++){
-                heightMap[i][j]=30+(int)(19*OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.01, (basedZ+j-1) * 0.023, 0.0));
+                float tempBiome=OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.0017, (basedZ+j-1) * 0.0019, 0.0)+0.1f*OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.031, (basedZ+j-1) * 0.017, 0.0);
+                biomeMap[i][j]=tempBiome>0? Biomes.BiomeTypes.GRASSY: Biomes.BiomeTypes.SANDY;
+
+                mountainLineMap[i][j]=(int)(35+3*OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.017+0.23, (basedZ+j-1) * 0.023+0.83, 0.0));
+
+                terrainMap[i][j]=0.5f+0.4f*OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.007, (basedZ+j-1) * 0.013, 0.0)+0.1f*OpenSimplex2S.noise3_ImproveXY(SEED, (basedX+i-1) * 0.037, (basedZ+j-1) * 0.031, 0.0);
+                terrainMap[i][j]*=terrainMap[i][j];
+
+                heightMap[i][j]=5+(int)(43*terrainMap[i][j]);
             }
         }
 
@@ -66,30 +81,32 @@ public class Chunk extends Drawable {
             for(int x=0;x<16;x++){
                 for(int z=0;z<16;z++){
                     int level= heightMap[x+1][z+1];
+                    int biomeIndex=biomeMap[x+1][z+1].ordinal();
+
                     if(y>level)
                         blocks[y][x][z]=BlockTypes.AIR;
                     else if(y==level){
-                        if(level>40)
-                            blocks[y][x][z]=BlockTypes.STONE;
+                        if(level>mountainLineMap[x+1][z+1])
+                            blocks[y][x][z]= Biomes.upperLayerMountainous[biomeIndex];
                         else
-                            blocks[y][x][z]=BlockTypes.GRASS;
+                            blocks[y][x][z]=Biomes.upperLayer[biomeIndex];
                     }
                     else if(y>level-3){
-                        if(level>40){
-                            blocks[y][x][z]=BlockTypes.STONE;
+                        if(level>mountainLineMap[x+1][z+1]){
+                            blocks[y][x][z]=Biomes.middleLayerMountainous[biomeIndex];
                         }
                         else
-                            blocks[y][x][z]=BlockTypes.DIRT;
+                            blocks[y][x][z]=Biomes.middleLayer[biomeIndex];
                     }
                     else if(y==0)
                         blocks[y][x][z]=BlockTypes.BEDROCK;
                     else
-                        blocks[y][x][z]=BlockTypes.STONE;
+                        blocks[y][x][z]=Biomes.lowerLayer[biomeIndex];
                 }
             }
         }
 
-        //trees
+        //trees and cockti
         Random random=new Random(chunkX*10000+chunkZ);
         for(int x=2;x<14;x++){
             for(int z=2;z<14;z++){
@@ -98,21 +115,34 @@ public class Chunk extends Drawable {
                 if(y>43)
                     continue;
 
-                if(random.nextFloat()>0.99f&&blocks[y][x][z]==BlockTypes.GRASS){
-                    blocks[y+1][x][z]=BlockTypes.LOG;
-                    blocks[y+2][x][z]=BlockTypes.LOG;
-                    blocks[y+3][x][z]=BlockTypes.LOG;
-                    blocks[y+4][x][z]=BlockTypes.LOG;
-                    blocks[y+4][x][z+1]=BlockTypes.LEAVES;
-                    blocks[y+4][x][z+2]=BlockTypes.LEAVES;
-                    blocks[y+4][x][z-1]=BlockTypes.LEAVES;
-                    blocks[y+4][x][z-2]=BlockTypes.LEAVES;
-                    blocks[y+4][x+1][z]=BlockTypes.LEAVES;
-                    blocks[y+4][x+2][z]=BlockTypes.LEAVES;
-                    blocks[y+4][x-1][z]=BlockTypes.LEAVES;
-                    blocks[y+4][x-2][z]=BlockTypes.LEAVES;
-                    blocks[y+5][x][z]=BlockTypes.LEAVES;
-                    blocks[y+6][x][z]=BlockTypes.LEAVES;
+                if(random.nextFloat()>0.99f){
+                    switch (blocks[y][x][z]){
+                        case GRASS:
+                            blocks[y+1][x][z]=BlockTypes.LOG;
+                            blocks[y+2][x][z]=BlockTypes.LOG;
+                            blocks[y+3][x][z]=BlockTypes.LOG;
+                            blocks[y+4][x][z]=BlockTypes.LOG;
+                            blocks[y+4][x][z+1]=BlockTypes.LEAVES;
+                            blocks[y+4][x][z+2]=BlockTypes.LEAVES;
+                            blocks[y+4][x][z-1]=BlockTypes.LEAVES;
+                            blocks[y+4][x][z-2]=BlockTypes.LEAVES;
+                            blocks[y+4][x+1][z]=BlockTypes.LEAVES;
+                            blocks[y+4][x+2][z]=BlockTypes.LEAVES;
+                            blocks[y+4][x-1][z]=BlockTypes.LEAVES;
+                            blocks[y+4][x-2][z]=BlockTypes.LEAVES;
+                            blocks[y+5][x][z]=BlockTypes.LEAVES;
+                            blocks[y+6][x][z]=BlockTypes.LEAVES;
+                            break;
+
+                        case SAND:
+                            if(random.nextFloat()>0.8f){
+                                int height=6;
+                                height=(int)(height*random.nextFloat());
+                                for(int i=1;i<=height&&i<50;i++)
+                                    blocks[y+i][x][z]=BlockTypes.COCKTUS;
+                            }
+                            break;
+                    }
                 }
             }
         }

@@ -46,6 +46,13 @@ public class Player implements Updateable{
     /**
      * @hidden
      */
+    private boolean isMorbin;
+    public boolean isMorbin(){return isMorbin;}
+    private boolean canMorb;
+
+    /**
+     * @hidden
+     */
     private final float ZOOM_SPEED=300.0f;
     /**
      * @hidden
@@ -87,6 +94,11 @@ public class Player implements Updateable{
         selectedHotbarSlot=0;
         lastScrollCount=InputManager.SCROLL_COUNT;
 
+        this.isSprinting=false;
+        this.isMorbin=false;
+        this.canMorb=true;
+        this.canJump=false;
+
         heldBlock=new HeldBlock();
         heldBlock.setBlockType(hotbarSlots[selectedHotbarSlot]);
         heldBlock.setScale(new Vector3(0.1f,0.1f, 0.1f));
@@ -124,6 +136,13 @@ public class Player implements Updateable{
         if(!InputManager.W)
             isSprinting=false;
 
+        if(!InputManager.M)
+            canMorb=true;
+        else if(canMorb){
+            canMorb=false;
+            isMorbin=!isMorbin;
+        }
+
         if(lastScrollCount!=InputManager.SCROLL_COUNT){
             if(lastScrollCount>InputManager.SCROLL_COUNT)
                 selectedHotbarSlot=selectedHotbarSlot==0?HOTBAR_SIZE-1:selectedHotbarSlot-1;
@@ -137,6 +156,8 @@ public class Player implements Updateable{
 
         RotateCamera(deltaTime);
         Move(deltaTime);
+        if(aabb.getPositionByReference().get(1)>1000||aabb.getPositionByReference().get(1)<-1000)
+            aabb.getPositionByReference().set(1,60);
         Camera.main.setPosition(Vector3.sum(aabb.getPositionByReference(),new Vector3(0,0.8f,0)));
     }
 
@@ -173,47 +194,62 @@ public class Player implements Updateable{
         forwardVec.set(1,0);
         Vector3.normalize(forwardVec);
 
-        Vector3 acceleration=Vector3.multiplyWithScalar(forward, forwardVec);
-        acceleration=Vector3.sum(acceleration,Vector3.multiplyWithScalar(left, Camera.main.getLeft()));
-        acceleration=Vector3.difference(acceleration,aabb.getVelocityByReference());
-        acceleration.set(1,0);
+        if(isMorbin){
+            Vector3 velocity=Vector3.multiplyWithScalar(2*forward, forwardVec);
+            velocity=Vector3.sum(velocity,Vector3.multiplyWithScalar(2*left, Camera.main.getLeft()));
+            velocity=Vector3.sum(velocity,Vector3.multiplyWithScalar(2*up, Vector3.up));
 
-        float accelMag=Vector3.magnitude(acceleration);
-
-        if(accelMag>20.0f*deltaTime){
-            Vector3.normalize(acceleration);
-            acceleration=Vector3.multiplyWithScalar(20*(float)deltaTime,acceleration);
+            aabb.setVelocity(Vector3.zero);
+            aabb.setPosition(Vector3.sum(aabb.getPositionByReference(),Vector3.multiplyWithScalar((float) deltaTime,velocity)));
         }
+        else{
+            Vector3 acceleration=null;
+            acceleration=Vector3.multiplyWithScalar(forward, forwardVec);
+            acceleration=Vector3.sum(acceleration,Vector3.multiplyWithScalar(left, Camera.main.getLeft()));
+            acceleration=Vector3.difference(acceleration,aabb.getVelocityByReference());
+            acceleration.set(1,0);
+
+            float accelMag=Vector3.magnitude(acceleration);
+
+            if(accelMag>20.0f*deltaTime){
+                Vector3.normalize(acceleration);
+                acceleration=Vector3.multiplyWithScalar(20*(float)deltaTime,acceleration);
+            }
 
 
-        Vector3 velocity=Vector3.sum(aabb.getVelocityByReference(),acceleration);
 
-        float maxVel=MAX_VELOCITY;
-        float maxVelSqr=MAX_VELOCITY_SQUARED;
-        if(isSprinting){
-            maxVelSqr*=9;
-            maxVel*=3;
+            Vector3 velocity=Vector3.sum(aabb.getVelocityByReference(),acceleration);
+
+            float maxVel=MAX_VELOCITY;
+            float maxVelSqr=MAX_VELOCITY_SQUARED;
+            if(isSprinting){
+                maxVelSqr*=9;
+                maxVel*=3;
+            }
+
+            float magnitude=velocity.get(0)*velocity.get(0)+velocity.get(2)*velocity.get(2);
+            if(magnitude>maxVelSqr){
+
+                magnitude=maxVel-(float)Math.sqrt(magnitude);
+                if(magnitude<-30.0f*(float)deltaTime)
+                    magnitude=-30.0f*(float)deltaTime;
+
+                velocity=Vector3.sum(velocity,Vector3.multiplyWithScalar(magnitude,new Vector3(velocity.get(0),0,velocity.get(2))));
+            }
+
+            if(up>1&&canJump){
+                canJump=false;
+                velocity.set(1,10);
+            }
+            else{
+                velocity.set(1,velocity.get(1)-20.0f*(float)deltaTime);
+                if(velocity.get(1)<-20.0f)
+                    velocity.set(1,-20);
+            }
+
+            aabb.setVelocity(velocity);
+            aabb.setPosition(Vector3.sum(aabb.getPositionByReference(),Vector3.multiplyWithScalar((float) deltaTime,velocity)));
         }
-
-        float magnitude=velocity.get(0)*velocity.get(0)+velocity.get(2)*velocity.get(2);
-        if(magnitude>maxVelSqr){
-
-            magnitude=maxVel-(float)Math.sqrt(magnitude);
-            if(magnitude<-30.0f*(float)deltaTime)
-                magnitude=-30.0f*(float)deltaTime;
-
-            velocity=Vector3.sum(velocity,Vector3.multiplyWithScalar(magnitude,new Vector3(velocity.get(0),0,velocity.get(2))));
-        }
-
-        if(up>1&&canJump){
-            canJump=false;
-            velocity.set(1,10);
-        }
-        else
-            velocity.set(1,velocity.get(1)-20.0f*(float)deltaTime);
-
-        aabb.setVelocity(velocity);
-        aabb.setPosition(Vector3.sum(aabb.getPositionByReference(),Vector3.multiplyWithScalar((float) deltaTime,velocity)));
         //System.out.println(pos);
     }
 

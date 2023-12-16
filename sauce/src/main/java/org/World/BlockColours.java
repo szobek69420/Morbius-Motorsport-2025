@@ -37,12 +37,28 @@ public class BlockColours {
             new Color(80,40,24),
 
             //GRASS
-            new Color(9,108,9),
-            new Color(8,96,8),
-            new Color(6,72,6),
-            new Color(7,84,7),
             new Color(10,120,10),
-            new Color(5,60,5),
+            new Color(9,108,9),
+            new Color(7,84,7),
+            new Color(8,96,8),
+            new Color(11,132,11),
+            new Color(6,72,6),
+
+            //SNOW
+            new Color(205,230,230),
+            new Color(185,205,205),
+            new Color(145,155,155),
+            new Color(165,180,180),
+            new Color(225,255,255),
+            new Color(125,130,130),
+
+            //SAND
+            new Color(225,212,153),
+            new Color(200,189,136),
+            new Color(150,143,102),
+            new Color(175,166,119),
+            new Color(250,235,170),
+            new Color(125,120,85),
 
             //LOG
             new Color(162,108,46),
@@ -82,6 +98,14 @@ public class BlockColours {
             new Color(140,0,140),
             new Color(160,0,160),
             new Color(220,0,220),
-            new Color(120,0,120)
+            new Color(120,0,120),
+
+            //COCKTUS
+            new Color(9,108,9),
+            new Color(8,96,8),
+            new Color(6,72,6),
+            new Color(7,84,7),
+            new Color(10,120,10),
+            new Color(5,60,5)
     };
 }

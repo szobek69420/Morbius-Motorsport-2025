@@ -45,6 +45,8 @@ public class MainFrame extends JFrame {
         FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
         FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
 
+        InputManager.setMouseAnchor(this.getX()+SCREEN_WIDTH/2,this.getY()+SCREEN_HEIGHT/2);
+
         this.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent componentEvent) {
                 SCREEN_WIDTH=componentEvent.getComponent().getWidth();
@@ -52,6 +54,8 @@ public class MainFrame extends JFrame {
 
                 FRAME_BUFFER_WIDTH=SCREEN_WIDTH/2;
                 FRAME_BUFFER_HEIGHT=SCREEN_HEIGHT/2;
+
+                InputManager.setMouseAnchor(componentEvent.getComponent().getX()+SCREEN_WIDTH/2,componentEvent.getComponent().getY()+SCREEN_HEIGHT/2);
 
                 if(currentContent!=null)
                     currentContent.onResize();

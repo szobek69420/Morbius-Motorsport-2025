@@ -38,10 +38,58 @@ public class ChunkManager {
                         continue;
                     }
 
-                    if(!isChunkPending(playerChunkX+j,playerChunkZ+k)&&!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
-                        pendingUpdates.add(new ChunkUpdate(playerChunkX+j,playerChunkZ+k, ChunkUpdate.Type.LOAD,null));
-                        return;
+                    if(!isChunkLoaded(playerChunkX+j,playerChunkZ+k)&&Camera.main!=null){
+                        boolean isThereLoadRequest=false;
+                        for(ChunkUpdate cu:pendingUpdates){
+                            if(cu.chunkX!=playerChunkX+j||cu.chunkZ!=playerChunkZ+k)
+                                continue;
+                            switch(cu.type){
+                                case LOAD:
+                                    isThereLoadRequest=true;
+                                    break;
+
+                                case UNLOAD:
+                                    pendingUpdates.remove(cu);
+                                    continue;
+                            }
+                        }
+
+                        if(!isThereLoadRequest){
+                            pendingUpdates.add(new ChunkUpdate(playerChunkX+j,playerChunkZ+k, ChunkUpdate.Type.LOAD,null));
+                            return;
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    public void unloadChunk(int playerChunkX, int playerChunkZ){
+        for(Chunk chomk : loadedChunks){
+            if(Math.abs(playerChunkX-chomk.chunkX)>CHUNK_RENDER_DISTANCE||Math.abs(playerChunkZ-chomk.chunkZ)>CHUNK_RENDER_DISTANCE){
+                if(isChunkLoaded(chomk.chunkX,chomk.chunkZ)){
+                    boolean shouldBeAdded=true;
+                    for(ChunkUpdate cu : pendingUpdates){
+                        if(chomk.chunkX==cu.chunkX&&chomk.chunkZ==cu.chunkZ&&cu.type== ChunkUpdate.Type.UNLOAD)
+                            shouldBeAdded=false;
+                    }
+
+                    if(shouldBeAdded){
+                        pendingUpdates.add(new ChunkUpdate(chomk.chunkX,chomk.chunkZ, ChunkUpdate.Type.UNLOAD,chomk));
+                        break;
+                    }
+                }
+                else{
+                    boolean foundUnloadable=false;
+                    for(ChunkUpdate cu : pendingUpdates){
+                        if(chomk.chunkX==cu.chunkX&&chomk.chunkZ==cu.chunkZ){
+                            pendingUpdates.remove(cu);
+                            foundUnloadable=true;
+                        }
+                    }
+
+                    if(foundUnloadable)
+                        break;
                 }
             }
         }
@@ -123,16 +171,6 @@ public class ChunkManager {
         return false;
     }
 
-    public void unloadChunk(int playerChunkX, int playerChunkZ){
-        for(Chunk chomk : loadedChunks){
-            if(Math.abs(playerChunkX-chomk.chunkX)>CHUNK_RENDER_DISTANCE||Math.abs(playerChunkZ-chomk.chunkZ)>CHUNK_RENDER_DISTANCE){
-                if(!isChunkPending(chomk.chunkX,chomk.chunkZ)&&isChunkLoaded(chomk.chunkX,chomk.chunkZ)){
-                    pendingUpdates.add(new ChunkUpdate(chomk.chunkX,chomk.chunkZ, ChunkUpdate.Type.UNLOAD,chomk));
-                    break;
-                }
-            }
-        }
-    }
 
     public void calculatePhysics(double deltaTime,Vector3 pos){
 
@@ -205,6 +243,10 @@ public class ChunkManager {
 
     public int getPendingCount(){
         return pendingUpdates.size();
+    }
+
+    public int getLoadedCount(){
+        return loadedChunks.size();
     }
 
     public static int[] getChunk(Vector3 pos){

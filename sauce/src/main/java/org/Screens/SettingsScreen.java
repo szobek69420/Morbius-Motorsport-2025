@@ -188,7 +188,7 @@ public class SettingsScreen extends JPanel implements Resizable {
         this.add(saveButton);
 
         //notiz
-        JLabel note=new JLabel("NOTE: closing the game resets the settings",SwingConstants.LEFT);
+        JLabel note=new JLabel("NOTE: closing the game resets the settings [ sorry :( ]",SwingConstants.LEFT);
         note.setBackground(transparent);
         note.setForeground(Color.white);
         note.setFont(new Font("Arial", Font.ITALIC|Font.BOLD,15));

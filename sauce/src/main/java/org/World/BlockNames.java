@@ -6,10 +6,13 @@ public class BlockNames {
             "stone",
             "soil",
             "grass",
+            "snow",
+            "sand",
             "log",
             "leaves",
             "zhongguo",
             "bedrock",
-            "sus"
+            "sus",
+            "cocktus"
     };
 }
