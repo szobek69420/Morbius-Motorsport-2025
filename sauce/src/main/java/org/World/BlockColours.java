@@ -65,8 +65,8 @@ public class BlockColours {
             new Color(144,96,42),
             new Color(108,72,34),
             new Color(126,84,38),
-            new Color(180,120,50),
-            new Color(90,60,30),
+            new Color(220,190,140),
+            new Color(110,95,70),
 
             //LEAVES
             new Color(90,171,0),
@@ -93,19 +93,19 @@ public class BlockColours {
             new Color(25,25,25),
 
             //GEH
-            new Color(200,0,200),
-            new Color(180,0,180),
-            new Color(140,0,140),
-            new Color(160,0,160),
-            new Color(220,0,220),
-            new Color(120,0,120),
+            new Color(200,0,0),
+            new Color(180,0,0),
+            new Color(140,0,0),
+            new Color(160,0,0),
+            new Color(220,0,0),
+            new Color(120,0,0),
 
             //COCKTUS
             new Color(9,108,9),
             new Color(8,96,8),
             new Color(6,72,6),
             new Color(7,84,7),
-            new Color(10,120,10),
-            new Color(5,60,5)
+            new Color(100,190,0),
+            new Color(50,95,0)
     };
 }

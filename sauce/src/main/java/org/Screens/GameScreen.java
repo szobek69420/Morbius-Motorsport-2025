@@ -516,8 +516,8 @@ public class GameScreen extends JPanel {
             public static final int INVENTORY_HEIGHT=3;
             public static final int SLOT_WIDTH=80;
             public static final BlockTypes[] INVENTORY_CONTENT=new BlockTypes[]{
-                    BlockTypes.BEDROCK,BlockTypes.DIRT,BlockTypes.STONE,BlockTypes.SAND,BlockTypes.COCKTUS,
-                    BlockTypes.DIRT,BlockTypes.GRASS,BlockTypes.LOG,BlockTypes.LEAVES,BlockTypes.GEH,
+                    BlockTypes.BEDROCK,BlockTypes.STONE,BlockTypes.DIRT,BlockTypes.SAND,BlockTypes.COCKTUS,
+                    BlockTypes.GRASS,BlockTypes.SNOW,BlockTypes.LOG,BlockTypes.LEAVES,BlockTypes.SUS,
                     BlockTypes.YELLOW,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR,BlockTypes.AIR
             };
 

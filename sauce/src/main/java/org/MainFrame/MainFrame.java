@@ -5,10 +5,13 @@ import main.java.org.Resizable.Resizable;
 import main.java.org.Screens.GameScreen;
 import main.java.org.Screens.SettingsScreen;
 import main.java.org.Screens.WelcomeScreen;
+import main.java.org.World.Chunk;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
+import java.util.Random;
 
 
 public class MainFrame extends JFrame {
@@ -120,6 +123,7 @@ public class MainFrame extends JFrame {
 
                     GameScreen gs=new GameScreen(this);
                     this.add(gs);
+                    Chunk.SEED=new Random(new Date().getTime()).nextInt();
 
                     KeyListener kl= new InputManager.KeyInput();
                     this.addKeyListener(kl);

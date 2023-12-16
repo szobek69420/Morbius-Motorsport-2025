@@ -11,6 +11,6 @@ public enum BlockTypes {
     LEAVES,
     YELLOW,
     BEDROCK,
-    GEH,
+    SUS,
     COCKTUS
 }

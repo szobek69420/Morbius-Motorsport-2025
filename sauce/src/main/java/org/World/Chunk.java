@@ -11,13 +11,13 @@ import main.java.org.World.BlockColours;
 import main.java.org.World.BlockTypes;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalField;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class Chunk extends Drawable {
-    public static final int SEED=new Random().nextInt();
+    public static int SEED=69;
 
     public final int chunkX;
     public final int chunkZ;
